@@ -24,10 +24,21 @@ public class SelectableMilestone : ObservableObject
         Milestone = milestone;
     }
 
+    public bool IsCompleted => Milestone.IsCompleted;
+    public string StatusText => Milestone.IsCompleted ? "Completed" : "Mark Complete";
+    public string StatusBackground => Milestone.IsCompleted ? "#064E3B" : "#1E293B";
+    public string StatusBorder => Milestone.IsCompleted ? "#059669" : "#334155";
+    public string StatusForeground => Milestone.IsCompleted ? "#34D399" : "#94A3B8";
+
     public void Refresh()
     {
         OnPropertyChanged(nameof(Milestone));
         OnPropertyChanged(nameof(IsSelected));
+        OnPropertyChanged(nameof(IsCompleted));
+        OnPropertyChanged(nameof(StatusText));
+        OnPropertyChanged(nameof(StatusBackground));
+        OnPropertyChanged(nameof(StatusBorder));
+        OnPropertyChanged(nameof(StatusForeground));
     }
 }
 
@@ -134,17 +145,39 @@ public class ClientsViewModel : ViewModelBase
     public IAsyncRelayCommand RefreshCommand { get; }
     public IRelayCommand OpenAddClientCommand { get; }
     public IAsyncRelayCommand SaveClientCommand { get; }
+    public IAsyncRelayCommand<Client> DeleteClientCommand { get; }
+    public IRelayCommand ClearSelectionCommand { get; }
+    public IRelayCommand ClearSearchCommand { get; }
     public IRelayCommand OpenAddProjectCommand { get; }
     public IAsyncRelayCommand SaveProjectCommand { get; }
+    public IAsyncRelayCommand<Project> DeleteProjectCommand { get; }
     public IRelayCommand OpenAddMilestoneCommand { get; }
     public IAsyncRelayCommand SaveMilestoneCommand { get; }
     public IAsyncRelayCommand<SelectableMilestone> ToggleMilestoneCompleteCommand { get; }
+    public IAsyncRelayCommand<SelectableMilestone> DeleteMilestoneCommand { get; }
     public IAsyncRelayCommand GenerateInvoiceFromMilestonesCommand { get; }
 
     public ClientsViewModel(IAppDbContext dbContext)
     {
         _dbContext = dbContext;
         RefreshCommand = new AsyncRelayCommand(LoadClientsAsync);
+
+        ClearSelectionCommand = new RelayCommand(() =>
+        {
+            SelectedClient = null;
+            SelectedProject = null;
+            ClientProjects.Clear();
+            ProjectMilestones.Clear();
+        });
+
+        ClearSearchCommand = new RelayCommand(() =>
+        {
+            SearchText = string.Empty;
+        });
+
+        DeleteClientCommand = new AsyncRelayCommand<Client>(DeleteClientAsync);
+        DeleteProjectCommand = new AsyncRelayCommand<Project>(DeleteProjectAsync);
+        DeleteMilestoneCommand = new AsyncRelayCommand<SelectableMilestone>(DeleteMilestoneAsync);
 
         OpenAddClientCommand = new RelayCommand(() =>
         {
@@ -440,6 +473,117 @@ public class ClientsViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = $"Failed to create invoice: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteClientAsync(Client? client)
+    {
+        client ??= SelectedClient;
+        if (client == null) return;
+
+        var invoiceCount = await _dbContext.Invoices.CountAsync(i => i.ClientId == client.Id);
+        string confirmMessage = invoiceCount > 0
+            ? $"Client '{client.Name}' has {invoiceCount} invoice(s) on record.\n\nDeleting this client will permanently remove the client, all related projects, milestones, and invoice records.\n\nDo you want to proceed?"
+            : $"Are you sure you want to delete client '{client.Name}' and all associated projects & milestones?";
+
+        var result = System.Windows.MessageBox.Show(
+            confirmMessage,
+            "Confirm Delete Client",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            var clientToDelete = await _dbContext.Clients
+                .Include(c => c.Projects)
+                    .ThenInclude(p => p.Milestones)
+                .Include(c => c.Invoices)
+                    .ThenInclude(i => i.Items)
+                .FirstOrDefaultAsync(c => c.Id == client.Id);
+
+            if (clientToDelete != null)
+            {
+                if (clientToDelete.Invoices.Any())
+                {
+                    _dbContext.Invoices.RemoveRange(clientToDelete.Invoices);
+                }
+
+                _dbContext.Clients.Remove(clientToDelete);
+                await _dbContext.SaveChangesAsync();
+
+                var clientName = client.Name;
+                await LoadClientsAsync();
+                SelectedClient = FilteredClients.FirstOrDefault();
+                Notify($"Client '{clientName}' has been permanently deleted.", "Client Removed", Wpf.Ui.Controls.InfoBarSeverity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error deleting client: {ex.Message}";
+            Notify($"Failed to delete client: {ex.Message}", "Delete Error", Wpf.Ui.Controls.InfoBarSeverity.Error);
+        }
+    }
+
+    private async Task DeleteProjectAsync(Project? project)
+    {
+        project ??= SelectedProject;
+        if (project == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"Are you sure you want to delete project '{project.Name}' and its associated milestones?",
+            "Confirm Delete Project",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            var projToDelete = await _dbContext.Projects
+                .Include(p => p.Milestones)
+                .FirstOrDefaultAsync(p => p.Id == project.Id);
+
+            if (projToDelete != null)
+            {
+                _dbContext.Projects.Remove(projToDelete);
+                await _dbContext.SaveChangesAsync();
+                ClientProjects.Remove(project);
+                SelectedProject = ClientProjects.FirstOrDefault();
+                Notify($"Project '{project.Name}' deleted.", "Project Removed", Wpf.Ui.Controls.InfoBarSeverity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error deleting project: {ex.Message}";
+            Notify($"Failed to delete project: {ex.Message}", "Delete Error", Wpf.Ui.Controls.InfoBarSeverity.Error);
+        }
+    }
+
+    private async Task DeleteMilestoneAsync(SelectableMilestone? item)
+    {
+        if (item == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"Are you sure you want to delete milestone '{item.Milestone.Title}'?",
+            "Confirm Delete Milestone",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            _dbContext.Milestones.Remove(item.Milestone);
+            await _dbContext.SaveChangesAsync();
+            ProjectMilestones.Remove(item);
+            Notify($"Milestone '{item.Milestone.Title}' deleted.", "Milestone Removed", Wpf.Ui.Controls.InfoBarSeverity.Success);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error deleting milestone: {ex.Message}";
+            Notify($"Failed to delete milestone: {ex.Message}", "Delete Error", Wpf.Ui.Controls.InfoBarSeverity.Error);
         }
     }
 }

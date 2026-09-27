@@ -35,26 +35,103 @@
                     </Button>
                 </Grid>
 
-                <!-- Search Input with rounded border -->
-                <Border Grid.Row="1" CornerRadius="8" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Margin="0,0,0,12" Padding="2">
-                    <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                Background="Transparent" BorderThickness="0" Foreground="#F8FAFC" Padding="8,4"
-                                PlaceholderText="Search by name, company..."/>
+                <!-- Search Input with rounded border & clear button -->
+                <Border Grid.Row="1" CornerRadius="8" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" Margin="0,0,0,12" Padding="6,2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ui:SymbolIcon Grid.Column="0" Symbol="Search24" FontSize="14" Foreground="#94A3B8" Margin="4,0,6,0" VerticalAlignment="Center"/>
+                        <ui:TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="Transparent" BorderThickness="0" Foreground="#F8FAFC" Padding="4,4"
+                                    PlaceholderText="Search by name, company..."/>
+                        <Button Grid.Column="2" Command="{Binding ClearSearchCommand}"
+                                Background="Transparent" BorderThickness="0" Padding="4"
+                                Visibility="{Binding SearchText, Converter={StaticResource NullToVisibilityConverter}}"
+                                ToolTip="Clear search text">
+                            <ui:SymbolIcon Symbol="Dismiss24" FontSize="13" Foreground="#94A3B8"/>
+                        </Button>
+                    </Grid>
                 </Border>
 
-                <!-- Client List View -->
+                <!-- Client List View with modern card styling and high contrast -->
                 <ListBox Grid.Row="2" ItemsSource="{Binding FilteredClients}" SelectedItem="{Binding SelectedClient}"
-                         Background="Transparent" BorderThickness="0">
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0,0,0,8"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="ItemBorder"
+                                                Background="#162032"
+                                                BorderBrush="#253349"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="10,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="4"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Left Accent indicator -->
+                                                <Border x:Name="AccentBar" Grid.Column="0"
+                                                        Background="Transparent"
+                                                        CornerRadius="2"
+                                                        Margin="0,2,0,2"/>
+
+                                                <!-- Content -->
+                                                <ContentPresenter Grid.Column="1" Margin="10,0,6,0"/>
+
+                                                <!-- Quick Delete button -->
+                                                <Button x:Name="QuickDelBtn" Grid.Column="2"
+                                                        Command="{Binding DataContext.DeleteClientCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="4"
+                                                        Opacity="0.4"
+                                                        ToolTip="Delete this client"
+                                                        VerticalAlignment="Center">
+                                                    <ui:SymbolIcon Symbol="Delete24" FontSize="14" Foreground="#F87171"/>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#1E2D44"/>
+                                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                                <Setter TargetName="QuickDelBtn" Property="Opacity" Value="1.0"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="#0F2847"/>
+                                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                                <Setter TargetName="ItemBorder" Property="BorderThickness" Value="1.5"/>
+                                                <Setter TargetName="AccentBar" Property="Background" Value="#38BDF8"/>
+                                                <Setter TargetName="QuickDelBtn" Property="Opacity" Value="1.0"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="6,8">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="Bold" Foreground="#F8FAFC"/>
-                                    <TextBlock Text="{Binding Company}" FontSize="11" Foreground="#94A3B8"
-                                               Visibility="{Binding Company, Converter={StaticResource NullToVisibilityConverter}}"/>
-                                    <TextBlock Text="{Binding Email}" FontSize="11" Foreground="#64748B"/>
-                                </StackPanel>
-                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontSize="13.5" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                <TextBlock Text="{Binding Company}" FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,2,0,0"
+                                           Visibility="{Binding Company, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                <TextBlock Text="{Binding Email}" FontSize="11" Foreground="#CBD5E1" Margin="0,2,0,0"/>
+                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -65,9 +142,13 @@
         <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20">
             <Grid>
                 <!-- If no client selected -->
-                <TextBlock Text="Select a client from the list or add a new client to view projects and milestones."
-                           FontSize="14" Foreground="#64748B" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Visibility="{Binding SelectedClient, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}"/>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding SelectedClient, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=invert}">
+                    <ui:SymbolIcon Symbol="PersonAccounts24" FontSize="48" Foreground="#334155" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="No Client Selected" FontSize="16" FontWeight="SemiBold" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Select a client from the list or click '+ New' to create a client workspace."
+                               FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
 
                 <!-- Client Content -->
                 <Grid Visibility="{Binding SelectedClient, Converter={StaticResource NullToVisibilityConverter}}">
@@ -78,7 +159,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Client Header Information -->
-                    <Border Grid.Row="0" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,16">
+                    <Border Grid.Row="0" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -86,25 +167,70 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding SelectedClient.Name}" FontSize="20" FontWeight="Bold" Foreground="#F8FAFC"/>
-                                    <Border Background="#1E293B" CornerRadius="4" Padding="6,2" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedClient.Name}" FontSize="20" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <Border Background="#0C4A6E" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="4" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center"
                                             Visibility="{Binding SelectedClient.Company, Converter={StaticResource NullToVisibilityConverter}}">
-                                        <TextBlock Text="{Binding SelectedClient.Company}" FontSize="11" Foreground="#38BDF8"/>
+                                        <TextBlock Text="{Binding SelectedClient.Company}" FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8"/>
                                     </Border>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                    <TextBlock Text="{Binding SelectedClient.Email}" FontSize="12" Foreground="#94A3B8" Margin="0,0,16,0"/>
-                                    <TextBlock Text="{Binding SelectedClient.Phone}" FontSize="12" Foreground="#94A3B8" Margin="0,0,16,0"/>
-                                    <TextBlock Text="{Binding SelectedClient.Address}" FontSize="12" Foreground="#64748B"/>
-                                </StackPanel>
+
+                                <!-- Contact Information Badges -->
+                                <WrapPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <!-- Email -->
+                                    <Border Background="#1E293B" CornerRadius="4" Padding="8,4" Margin="0,0,8,4"
+                                            Visibility="{Binding SelectedClient.Email, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Symbol="Mail24" FontSize="13" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding SelectedClient.Email}" FontSize="11.5" Foreground="#E2E8F0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Phone -->
+                                    <Border Background="#1E293B" CornerRadius="4" Padding="8,4" Margin="0,0,8,4"
+                                            Visibility="{Binding SelectedClient.Phone, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Symbol="Call24" FontSize="13" Foreground="#34D399" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding SelectedClient.Phone}" FontSize="11.5" Foreground="#E2E8F0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Address -->
+                                    <Border Background="#1E293B" CornerRadius="4" Padding="8,4" Margin="0,0,8,4"
+                                            Visibility="{Binding SelectedClient.Address, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Symbol="Location24" FontSize="13" Foreground="#FBBF24" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding SelectedClient.Address}" FontSize="11.5" Foreground="#E2E8F0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </WrapPanel>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Command="{Binding OpenAddProjectCommand}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Padding="10,5">
+                            <!-- Header Actions -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                                <!-- Add Project Button -->
+                                <Button Command="{Binding OpenAddProjectCommand}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Padding="10,6" Margin="0,0,8,0">
                                     <StackPanel Orientation="Horizontal">
                                         <ui:SymbolIcon Symbol="Add24" FontSize="14" Margin="0,0,6,0" Foreground="#38BDF8"/>
                                         <TextBlock Text="Add Project" FontSize="12" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Clear Selection Button -->
+                                <Button Command="{Binding ClearSelectionCommand}" Background="#1E293B" BorderBrush="#334155" Foreground="#CBD5E1" Padding="10,6" Margin="0,0,8,0"
+                                        ToolTip="Close details and clear selection">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Dismiss24" FontSize="14" Margin="0,0,6,0" Foreground="#94A3B8"/>
+                                        <TextBlock Text="Clear Selection" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Delete Client Button -->
+                                <Button Command="{Binding DeleteClientCommand}" Background="#450A0A" BorderBrush="#DC2626" Foreground="#FCA5A5" Padding="10,6"
+                                        ToolTip="Permanently remove this client and its projects">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Delete24" FontSize="14" Margin="0,0,6,0" Foreground="#F87171"/>
+                                        <TextBlock Text="Delete Client" FontSize="12" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -127,23 +253,72 @@
                                     <WrapPanel Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Margin" Value="0,0,10,6"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="ProjectCardBorder"
+                                                        Background="#1E293B"
+                                                        BorderBrush="#334155"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="12,10"
+                                                        MinWidth="200">
+                                                    <Grid>
+                                                        <ContentPresenter/>
+                                                        <!-- Delete Project button -->
+                                                        <Button Command="{Binding DataContext.DeleteProjectCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                CommandParameter="{Binding}"
+                                                                HorizontalAlignment="Right"
+                                                                VerticalAlignment="Top"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="4"
+                                                                Margin="0,-6,-6,0"
+                                                                Opacity="0.4"
+                                                                ToolTip="Delete this project">
+                                                            <ui:SymbolIcon Symbol="Delete24" FontSize="13" Foreground="#F87171"/>
+                                                        </Button>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ProjectCardBorder" Property="Background" Value="#24334A"/>
+                                                        <Setter TargetName="ProjectCardBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="ProjectCardBorder" Property="Background" Value="#0F2847"/>
+                                                        <Setter TargetName="ProjectCardBorder" Property="BorderBrush" Value="#38BDF8"/>
+                                                        <Setter TargetName="ProjectCardBorder" Property="BorderThickness" Value="1.5"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,10,6" MinWidth="180">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="Bold" Foreground="#F8FAFC"/>
-                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                <Border Background="#0F172A" CornerRadius="4" Padding="4,1" Margin="0,0,6,0">
-                                                    <TextBlock Text="{Binding Status}" FontSize="10"
-                                                               Foreground="{Binding Status, Converter={StaticResource ProjectStatusToBrushConverter}}"/>
-                                                </Border>
-                                                <TextBlock FontSize="11" Foreground="#94A3B8">
-                                                    <Run Text="Budget: "/>
-                                                    <Run Text="{Binding TotalBudget, StringFormat={}{0:N0}}" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                </TextBlock>
-                                            </StackPanel>
+                                    <StackPanel Margin="0,0,16,0">
+                                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Border Background="#0F172A" BorderBrush="{Binding Status, Converter={StaticResource ProjectStatusToBrushConverter}}"
+                                                    BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="0,0,8,0">
+                                                <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"
+                                                           Foreground="{Binding Status, Converter={StaticResource ProjectStatusToBrushConverter}}"/>
+                                            </Border>
+                                            <TextBlock FontSize="11" Foreground="#CBD5E1">
+                                                <Run Text="Budget: "/>
+                                                <Run Text="{Binding TotalBudget, StringFormat={}{0:N0}}" FontWeight="Bold" Foreground="#38BDF8"/>
+                                            </TextBlock>
                                         </StackPanel>
-                                    </Border>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -183,58 +358,100 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Milestone List -->
+                            <!-- Milestone List with clear details and stylish completion button -->
                             <ListView Grid.Row="1" ItemsSource="{Binding ProjectMilestones}" Background="Transparent" BorderThickness="0">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0,0,0,4"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListViewItem">
+                                                    <Border Background="#101A2E" BorderBrush="#1E2B42" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="6,10">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/> <!-- Selection Checkbox for Invoicing -->
-                                                    <ColumnDefinition Width="*"/>    <!-- Milestone Info -->
-                                                    <ColumnDefinition Width="Auto"/> <!-- Status & Completion -->
-                                                    <ColumnDefinition Width="Auto"/> <!-- Amount -->
-                                                </Grid.ColumnDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/> <!-- Selection Checkbox for Invoicing -->
+                                                <ColumnDefinition Width="*"/>    <!-- Milestone Info -->
+                                                <ColumnDefinition Width="Auto"/> <!-- Status & Completion Toggle -->
+                                                <ColumnDefinition Width="Auto"/> <!-- Amount -->
+                                                <ColumnDefinition Width="Auto"/> <!-- Delete Button -->
+                                            </Grid.ColumnDefinitions>
 
-                                                <!-- Checkbox for invoice selection -->
-                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,12,0"
-                                                          IsEnabled="{Binding Milestone.IsInvoiced, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
+                                            <!-- Checkbox for invoice selection -->
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,14,0"
+                                                      ToolTip="Select for invoice generation"
+                                                      IsEnabled="{Binding Milestone.IsInvoiced, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=invert}"/>
 
-                                                <!-- Info -->
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Milestone.Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F1F5F9"/>
-                                                        <Border Background="#1E293B" CornerRadius="4" Padding="6,2" Margin="10,0,0,0"
-                                                                Visibility="{Binding Milestone.IsInvoiced, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                            <TextBlock Text="INVOICED" FontSize="9" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding Milestone.Description}" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock FontSize="10" Foreground="#64748B" Margin="0,2,0,0">
+                                            <!-- Info -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Milestone.Title}" FontSize="13.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                                    <Border Background="#0C4A6E" BorderBrush="#0284C7" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="10,0,0,0"
+                                                            Visibility="{Binding Milestone.IsInvoiced, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="INVOICED" FontSize="9.5" FontWeight="Bold" Foreground="#38BDF8"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Milestone.Description}" FontSize="11.5" Foreground="#CBD5E1" Margin="0,3,0,0"
+                                                           TextWrapping="Wrap"
+                                                           Visibility="{Binding Milestone.Description, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0" VerticalAlignment="Center">
+                                                    <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="12" Foreground="#94A3B8" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                                    <TextBlock FontSize="10.5" Foreground="#94A3B8" VerticalAlignment="Center">
                                                         <Run Text="Due: "/>
-                                                        <Run Text="{Binding Milestone.DueDate, StringFormat={}{0:yyyy-MM-dd}}"/>
+                                                        <Run Text="{Binding Milestone.DueDate, StringFormat={}{0:yyyy-MM-dd}}" FontWeight="SemiBold" Foreground="#E2E8F0"/>
                                                     </TextBlock>
                                                 </StackPanel>
+                                            </StackPanel>
 
-                                                <!-- Completion button/toggle -->
-                                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,16,0">
-                                                    <Button Command="{Binding DataContext.ToggleMilestoneCompleteCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                            CommandParameter="{Binding}"
-                                                            Background="#1E293B" BorderBrush="#334155" Padding="8,4">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <ui:SymbolIcon Symbol="Checkmark24" FontSize="12" Margin="0,0,4,0"
-                                                                           Foreground="{Binding Milestone.IsCompleted, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <TextBlock Text="{Binding Milestone.IsCompleted, StringFormat={}{0}}" FontSize="11" Foreground="#94A3B8"/>
-                                                        </StackPanel>
-                                                    </Button>
-                                                </StackPanel>
+                                            <!-- Completion button/toggle (Polished: "Completed" vs "Mark Complete") -->
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                <Button Command="{Binding DataContext.ToggleMilestoneCompleteCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="{Binding StatusBackground}"
+                                                        BorderBrush="{Binding StatusBorder}"
+                                                        BorderThickness="1"
+                                                        Padding="10,4"
+                                                        Cursor="Hand"
+                                                        ToolTip="Click to toggle completion status">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <ui:SymbolIcon Symbol="Checkmark24" FontSize="13" Margin="0,0,6,0"
+                                                                       Foreground="{Binding StatusForeground}"/>
+                                                        <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="{Binding StatusForeground}"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
 
-                                                <!-- Amount -->
-                                                <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Foreground="#10B981" HorizontalAlignment="Right">
-                                                    <Run Text="{Binding Milestone.Amount, StringFormat={}{0:N2}}"/>
-                                                </TextBlock>
-                                            </Grid>
-                                        </Border>
+                                            <!-- Amount -->
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="14.5" FontWeight="Bold" Foreground="#10B981" HorizontalAlignment="Right" Margin="0,0,16,0">
+                                                <Run Text="{Binding Milestone.Amount, StringFormat={}{0:N2}}"/>
+                                            </TextBlock>
+
+                                            <!-- Delete Milestone Button -->
+                                            <Button Grid.Column="4"
+                                                    Command="{Binding DataContext.DeleteMilestoneCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    VerticalAlignment="Center"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Padding="6"
+                                                    Cursor="Hand"
+                                                    ToolTip="Delete Milestone">
+                                                <ui:SymbolIcon Symbol="Delete24" FontSize="15" Foreground="#F87171"/>
+                                            </Button>
+                                        </Grid>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
