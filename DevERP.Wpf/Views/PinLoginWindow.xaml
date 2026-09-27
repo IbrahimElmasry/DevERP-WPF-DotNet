@@ -6,7 +6,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="DevERP — Enter 4-Digit Security PIN"
-        Icon="../Assets/app.ico"
+        Icon="pack://application:,,,/DevERP.Wpf;component/Assets/app.ico"
         Height="730" Width="440"
         WindowStartupLocation="CenterScreen"
         WindowBackdropType="Mica"
@@ -76,15 +76,9 @@
 
                     <!-- Header: Brand & Identity -->
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16">
-                        <!-- Glowing Shield / Lock Badge -->
-                        <Border Width="60" Height="60" CornerRadius="30" BorderBrush="#38BDF8" BorderThickness="2" Margin="0,0,0,12" HorizontalAlignment="Center">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#0369A1" Offset="0"/>
-                                    <GradientStop Color="#0F172A" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:SymbolIcon Symbol="ShieldKeyhole24" FontSize="26" Foreground="#38BDF8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <!-- Custom IT Neon Monogram Avatar -->
+                        <Border Width="88" Height="88" CornerRadius="44" BorderBrush="#10B981" BorderThickness="2" Margin="0,0,0,14" HorizontalAlignment="Center" ClipToBounds="True" Background="#060A12">
+                            <Image Source="pack://application:,,,/DevERP.Wpf;component/Assets/it_emblem_circle.png" Stretch="UniformToFill"/>
                         </Border>
 
                         <!-- User Name -->

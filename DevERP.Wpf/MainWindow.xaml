@@ -6,7 +6,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="DevERP — Business Operating System for Developers"
-        Icon="Assets/app.ico"
+        Icon="pack://application:,,,/DevERP.Wpf;component/Assets/app.ico"
         Height="820" Width="1280"
         MinHeight="650" MinWidth="950"
         WindowStartupLocation="CenterScreen"
@@ -58,12 +58,12 @@
                     <!-- App Brand Header -->
                     <StackPanel Grid.Row="0" Margin="18,16,18,20">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#2563EB" CornerRadius="8" Width="32" Height="32" Margin="0,0,10,0">
-                                <TextBlock Text="D" FontSize="18" FontWeight="ExtraBold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border CornerRadius="20" Width="40" Height="40" Margin="0,0,10,0" ClipToBounds="True" Background="#060A12" BorderBrush="#10B981" BorderThickness="1.5">
+                                <Image Source="pack://application:,,,/DevERP.Wpf;component/Assets/it_emblem_circle.png" Stretch="UniformToFill"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="DevERP" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC"/>
-                                <TextBlock Text="Enterprise Suite" FontSize="10" Foreground="#64748B"/>
+                                <TextBlock Text="Eng. Ibrahim Tarek" FontSize="10" Foreground="#38BDF8" FontWeight="SemiBold"/>
                             </StackPanel>
                         </StackPanel>
                         <Border Height="1" Background="#1E293B" Margin="0,16,0,0"/>
