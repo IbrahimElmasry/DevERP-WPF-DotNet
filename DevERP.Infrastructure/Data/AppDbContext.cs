@@ -154,7 +154,9 @@ public class AppDbContext : DbContext, IAppDbContext
             SwiftBic = "NBEGEGCX001",
             BaseCurrency = "EGP",
             UsdToEgpRate = 48.50m,
-            EurToEgpRate = 52.00m
+            EurToEgpRate = 52.00m,
+            IsPinEnabled = true,
+            SecurityPin = "1234"
         });
     }
 }

@@ -320,7 +320,13 @@
             <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Width="600" Padding="20" VerticalAlignment="Center">
                 <ScrollViewer MaxHeight="600" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="Create New Invoice" FontSize="18" FontWeight="Bold" Foreground="#F8FAFC" Margin="0,0,0,16"/>
+                        <Grid Margin="0,0,0,16">
+                            <TextBlock Text="Create New Invoice" FontSize="18" FontWeight="Bold" Foreground="#F8FAFC" VerticalAlignment="Center"/>
+                            <Button HorizontalAlignment="Right" Command="{Binding CloseCreateInvoiceCommand}"
+                                    Background="Transparent" BorderThickness="0" Padding="4" ToolTip="Close">
+                                <ui:SymbolIcon Symbol="Dismiss24" FontSize="16" Foreground="#94A3B8"/>
+                            </Button>
+                        </Grid>
 
                         <!-- Client selection -->
                         <TextBlock Text="Select Client *" FontSize="11" Foreground="#94A3B8"/>
@@ -417,7 +423,7 @@
                         <TextBox Text="{Binding NewInvoiceNotes}" Background="#0F172A" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,14" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Cancel" Command="{Binding OpenCreateInvoiceCommand}" Background="Transparent" BorderBrush="#475569" Foreground="#94A3B8" Margin="0,0,8,0" Padding="12,6"/>
+                            <Button Content="Cancel" Command="{Binding CloseCreateInvoiceCommand}" Background="Transparent" BorderBrush="#475569" Foreground="#94A3B8" Margin="0,0,8,0" Padding="12,6"/>
                             <Button Content="Create &amp; Issue Invoice" Command="{Binding SaveInvoiceCommand}" Background="#2563EB" BorderBrush="#3B82F6" Foreground="White" Padding="14,6"/>
                         </StackPanel>
                     </StackPanel>

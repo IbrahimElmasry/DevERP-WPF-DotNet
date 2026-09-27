@@ -11,30 +11,61 @@ public static class DatabaseInitializer
         // Automatically create schema
         await context.Database.EnsureCreatedAsync();
 
-        // Ensure default developer profile exists
-        if (!await context.DeveloperProfiles.AnyAsync())
+        // Migrate columns if upgrading from earlier version without breaking data
+        try
         {
-            context.DeveloperProfiles.Add(new DeveloperProfile
-            {
-                Id = 1,
-                FullName = "Ibrahim Tarek",
-                ProfessionalTitle = "Software Engineer & Consultant",
-                Email = "ibrahim@deverp.local",
-                Phone = "+20 100 123 4567",
-                Address = "Cairo, Egypt",
-                TaxNumber = "EG-TAX-982143",
-                BankName = "National Bank of Egypt (NBE)",
-                BankAccountHolder = "Ibrahim Tarek",
-                Iban = "EG380001000100000012345678901",
-                SwiftBic = "NBEGEGCX001",
-                BaseCurrency = "EGP",
-                UsdToEgpRate = 48.50m,
-                EurToEgpRate = 52.00m
-            });
-            await context.SaveChangesAsync();
+            await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN IsPinEnabled INTEGER NOT NULL DEFAULT 1;");
+        }
+        catch { /* Column already exists */ }
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN SecurityPin TEXT NOT NULL DEFAULT '1234';");
+        }
+        catch { /* Column already exists */ }
+
+        var dbPath = AppDbContext.GetDatabasePath();
+        var markerPath = Path.Combine(Path.GetDirectoryName(dbPath) ?? "", ".deverp_initialized");
+
+        // If the marker exists, the system has already completed its first-run setup.
+        // NEVER reset or re-seed sample data, even if the user deletes all clients or clears the ledger!
+        if (File.Exists(markerPath))
+        {
+            return;
         }
 
-        // Seed initial sample data if clean install
+        // If a developer profile already exists, this is an existing database from a prior session.
+        // Stamp the marker file and do NOT re-seed sample clients or overwrite user state.
+        bool hasProfile = await context.DeveloperProfiles.AnyAsync();
+        if (hasProfile)
+        {
+            try { await File.WriteAllTextAsync(markerPath, DateTime.UtcNow.ToString("O")); } catch { }
+            return;
+        }
+
+        // Fresh install: Ensure default developer profile exists
+        context.DeveloperProfiles.Add(new DeveloperProfile
+        {
+            Id = 1,
+            FullName = "Ibrahim Tarek",
+            ProfessionalTitle = "Software Engineer & Consultant",
+            Email = "ibrahim@deverp.local",
+            Phone = "+20 100 123 4567",
+            Address = "Cairo, Egypt",
+            TaxNumber = "EG-TAX-982143",
+            BankName = "National Bank of Egypt (NBE)",
+            BankAccountHolder = "Ibrahim Tarek",
+            Iban = "EG380001000100000012345678901",
+            SwiftBic = "NBEGEGCX001",
+            BaseCurrency = "EGP",
+            UsdToEgpRate = 48.50m,
+            EurToEgpRate = 52.00m,
+            IsPinEnabled = true,
+            SecurityPin = "1234"
+        });
+        await context.SaveChangesAsync();
+
+        // Seed initial sample data only on the true first run
         if (!await context.Clients.AnyAsync())
         {
             var client1 = new Client
@@ -279,6 +310,9 @@ public static class DatabaseInitializer
 
             context.CashFlowTransactions.AddRange(t2, t3, t4, t5);
             await context.SaveChangesAsync();
+
+            // Stamp marker file
+            try { await File.WriteAllTextAsync(markerPath, DateTime.UtcNow.ToString("O")); } catch { }
         }
     }
 }

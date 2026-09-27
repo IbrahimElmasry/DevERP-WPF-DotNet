@@ -36,6 +36,7 @@ public class SettingsViewModel : ViewModelBase
     public IAsyncRelayCommand SaveSettingsCommand { get; }
     public IAsyncRelayCommand ExportDatabaseBackupCommand { get; }
     public IRelayCommand CreateDesktopShortcutCommand { get; }
+    public IRelayCommand<string> OpenUrlCommand { get; }
 
     public SettingsViewModel(IAppDbContext dbContext)
     {
@@ -45,6 +46,17 @@ public class SettingsViewModel : ViewModelBase
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync);
         ExportDatabaseBackupCommand = new AsyncRelayCommand(ExportDatabaseBackupAsync);
         CreateDesktopShortcutCommand = new RelayCommand(CreateDesktopShortcut);
+        OpenUrlCommand = new RelayCommand<string>(url =>
+        {
+            if (!string.IsNullOrEmpty(url))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+                }
+                catch { }
+            }
+        });
     }
 
     public override async Task InitializeAsync()
@@ -83,6 +95,17 @@ public class SettingsViewModel : ViewModelBase
             {
                 Notify("Developer name cannot be empty.", "Validation Error", Wpf.Ui.Controls.InfoBarSeverity.Warning);
                 return;
+            }
+
+            if (Profile.IsPinEnabled)
+            {
+                if (string.IsNullOrWhiteSpace(Profile.SecurityPin) ||
+                    Profile.SecurityPin.Length != 4 ||
+                    !Profile.SecurityPin.All(char.IsDigit))
+                {
+                    Notify("Security PIN must be exactly 4 numeric digits (e.g. 1234).", "Validation Error", Wpf.Ui.Controls.InfoBarSeverity.Warning);
+                    return;
+                }
             }
 
             _dbContext.DeveloperProfiles.Update(Profile);

@@ -144,14 +144,17 @@ public class ClientsViewModel : ViewModelBase
     // Commands
     public IAsyncRelayCommand RefreshCommand { get; }
     public IRelayCommand OpenAddClientCommand { get; }
+    public IRelayCommand CloseAddClientCommand { get; }
     public IAsyncRelayCommand SaveClientCommand { get; }
     public IAsyncRelayCommand<Client> DeleteClientCommand { get; }
     public IRelayCommand ClearSelectionCommand { get; }
     public IRelayCommand ClearSearchCommand { get; }
     public IRelayCommand OpenAddProjectCommand { get; }
+    public IRelayCommand CloseAddProjectCommand { get; }
     public IAsyncRelayCommand SaveProjectCommand { get; }
     public IAsyncRelayCommand<Project> DeleteProjectCommand { get; }
     public IRelayCommand OpenAddMilestoneCommand { get; }
+    public IRelayCommand CloseAddMilestoneCommand { get; }
     public IAsyncRelayCommand SaveMilestoneCommand { get; }
     public IAsyncRelayCommand<SelectableMilestone> ToggleMilestoneCompleteCommand { get; }
     public IAsyncRelayCommand<SelectableMilestone> DeleteMilestoneCommand { get; }
@@ -174,6 +177,10 @@ public class ClientsViewModel : ViewModelBase
         {
             SearchText = string.Empty;
         });
+
+        CloseAddClientCommand = new RelayCommand(() => IsAddClientOpen = false);
+        CloseAddProjectCommand = new RelayCommand(() => IsAddProjectOpen = false);
+        CloseAddMilestoneCommand = new RelayCommand(() => IsAddMilestoneOpen = false);
 
         DeleteClientCommand = new AsyncRelayCommand<Client>(DeleteClientAsync);
         DeleteProjectCommand = new AsyncRelayCommand<Project>(DeleteProjectAsync);

@@ -1,5 +1,6 @@
 using System.Windows;
 using DevERP.Core.Interfaces;
+using DevERP.Core.Models;
 using DevERP.Infrastructure.Data;
 using DevERP.Infrastructure.Services;
 using DevERP.Desktop.ViewModels;
@@ -47,11 +48,29 @@ public partial class App : Application
 
         _serviceProvider = services.BuildServiceProvider();
 
+        // Prevent premature app shutdown while login dialog is active
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        DeveloperProfile? profile = null;
+
         // Auto create database and seed default profile / sample data
         using (var scope = _serviceProvider.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await DatabaseInitializer.InitializeAsync(dbContext);
+            profile = await dbContext.DeveloperProfiles.FirstOrDefaultAsync();
+        }
+
+        // Check if 4-Digit PIN Security is enabled
+        if (profile != null && profile.IsPinEnabled && !string.IsNullOrWhiteSpace(profile.SecurityPin))
+        {
+            var pinWindow = new DevERP.Desktop.Views.PinLoginWindow(profile.SecurityPin, profile.FullName, profile.ProfessionalTitle);
+            bool? unlocked = pinWindow.ShowDialog();
+            if (unlocked != true)
+            {
+                Shutdown();
+                return;
+            }
         }
 
         // Initialize MainViewModel
@@ -60,6 +79,8 @@ public partial class App : Application
 
         // Launch MainWindow
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+        MainWindow = mainWindow;
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
         mainWindow.Show();
     }
 

@@ -1,7 +1,9 @@
+using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
 using DevERP.Core.Interfaces;
 using DevERP.Core.Models;
+using DevERP.Desktop.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevERP.Desktop.ViewModels;
@@ -15,6 +17,8 @@ public class MainViewModel : ViewModelBase
     public InvoicesViewModel InvoicesVM { get; }
     public CashFlowViewModel CashFlowVM { get; }
     public SettingsViewModel SettingsVM { get; }
+
+    public IRelayCommand LockAppCommand { get; }
 
     private ViewModelBase _currentViewModel;
     public ViewModelBase CurrentViewModel
@@ -117,6 +121,28 @@ public class MainViewModel : ViewModelBase
         {
             IsStatusMessageVisible = false;
         });
+
+        LockAppCommand = new RelayCommand(LockApp);
+    }
+
+    private void LockApp()
+    {
+        var pin = string.IsNullOrWhiteSpace(Profile.SecurityPin) ? "1234" : Profile.SecurityPin;
+        var pinWindow = new PinLoginWindow(pin, Profile.FullName, Profile.ProfessionalTitle);
+        if (Application.Current.MainWindow != null)
+        {
+            pinWindow.Owner = Application.Current.MainWindow;
+        }
+
+        bool? unlocked = pinWindow.ShowDialog();
+        if (unlocked != true)
+        {
+            Application.Current.Shutdown();
+        }
+        else
+        {
+            TriggerNotification("DevERP workspace unlocked successfully.", "Welcome Back", Wpf.Ui.Controls.InfoBarSeverity.Success);
+        }
     }
 
     public override async Task InitializeAsync()

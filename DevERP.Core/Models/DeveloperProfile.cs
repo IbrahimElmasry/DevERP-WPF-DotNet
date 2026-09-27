@@ -20,4 +20,8 @@ public class DeveloperProfile
     public string BaseCurrency { get; set; } = "EGP";
     public decimal UsdToEgpRate { get; set; } = 48.50m;
     public decimal EurToEgpRate { get; set; } = 52.00m;
+
+    // Security & Authentication (4-Digit PIN)
+    public bool IsPinEnabled { get; set; } = true;
+    public string SecurityPin { get; set; } = "1234";
 }

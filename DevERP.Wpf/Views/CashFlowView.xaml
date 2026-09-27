@@ -251,12 +251,18 @@
         <Grid Grid.RowSpan="4" Background="#80000000" Visibility="{Binding IsAddTransactionOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Width="480" Padding="20" VerticalAlignment="Center">
                 <StackPanel>
-                    <TextBlock Text="Record Cash Flow Transaction" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" Margin="0,0,0,14"/>
+                    <Grid Margin="0,0,0,14">
+                        <TextBlock Text="Record Cash Flow Transaction" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" VerticalAlignment="Center"/>
+                        <Button HorizontalAlignment="Right" Command="{Binding CloseAddTransactionCommand}"
+                                Content="✕" Background="Transparent" BorderThickness="0"
+                                Foreground="#94A3B8" FontSize="14" Cursor="Hand" Padding="4"/>
+                    </Grid>
 
                     <!-- Type Radio Buttons -->
                     <TextBlock Text="Transaction Type *" FontSize="11" Foreground="#94A3B8"/>
                     <StackPanel Orientation="Horizontal" Margin="0,4,0,10">
-                        <RadioButton Content="Inflow (+ Revenue)" IsChecked="True" Foreground="#10B981" Margin="0,0,16,0" Style="{x:Null}"/>
+                        <RadioButton Content="Inflow (+ Revenue)" IsChecked="{Binding IsNewTxInflow}" Foreground="#10B981" Margin="0,0,16,0" Style="{x:Null}"/>
+                        <RadioButton Content="Outflow (- Expense)" IsChecked="{Binding IsNewTxOutflow}" Foreground="#F43F5E" Style="{x:Null}"/>
                     </StackPanel>
 
                     <!-- Amount & Currency -->
@@ -307,7 +313,7 @@
                     <TextBox Text="{Binding NewTxReference}" Background="#0F172A" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,2,0,14"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Cancel" Command="{Binding OpenAddTransactionCommand}" Background="Transparent" BorderBrush="#475569" Foreground="#94A3B8" Margin="0,0,8,0" Padding="12,6"/>
+                        <Button Content="Cancel" Command="{Binding CloseAddTransactionCommand}" Background="Transparent" BorderBrush="#475569" Foreground="#94A3B8" Margin="0,0,8,0" Padding="12,6"/>
                         <Button Content="Save Transaction" Command="{Binding SaveTransactionCommand}" Background="#2563EB" BorderBrush="#3B82F6" Foreground="White" Padding="14,6"/>
                     </StackPanel>
                 </StackPanel>

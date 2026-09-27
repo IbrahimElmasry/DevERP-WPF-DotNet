@@ -110,6 +110,35 @@ public class CashFlowViewModel : ViewModelBase
     }
 
     public TransactionType NewTxType { get; set; } = TransactionType.Inflow;
+
+    public bool IsNewTxInflow
+    {
+        get => NewTxType == TransactionType.Inflow;
+        set
+        {
+            if (value)
+            {
+                NewTxType = TransactionType.Inflow;
+                OnPropertyChanged(nameof(IsNewTxInflow));
+                OnPropertyChanged(nameof(IsNewTxOutflow));
+            }
+        }
+    }
+
+    public bool IsNewTxOutflow
+    {
+        get => NewTxType == TransactionType.Outflow;
+        set
+        {
+            if (value)
+            {
+                NewTxType = TransactionType.Outflow;
+                OnPropertyChanged(nameof(IsNewTxInflow));
+                OnPropertyChanged(nameof(IsNewTxOutflow));
+            }
+        }
+    }
+
     public DateTime NewTxDate { get; set; } = DateTime.UtcNow.Date;
     public decimal NewTxAmount { get; set; } = 1000m;
     public string NewTxCurrency { get; set; } = "EGP";
@@ -133,6 +162,7 @@ public class CashFlowViewModel : ViewModelBase
     // Commands
     public IAsyncRelayCommand RefreshCommand { get; }
     public IRelayCommand OpenAddTransactionCommand { get; }
+    public IRelayCommand CloseAddTransactionCommand { get; }
     public IAsyncRelayCommand SaveTransactionCommand { get; }
     public IAsyncRelayCommand<CashFlowTransaction> DeleteTransactionCommand { get; }
 
@@ -140,6 +170,8 @@ public class CashFlowViewModel : ViewModelBase
     {
         _dbContext = dbContext;
         RefreshCommand = new AsyncRelayCommand(LoadTransactionsAsync);
+
+        CloseAddTransactionCommand = new RelayCommand(() => IsAddTransactionOpen = false);
 
         OpenAddTransactionCommand = new RelayCommand(async () =>
         {
@@ -154,6 +186,8 @@ public class CashFlowViewModel : ViewModelBase
             NewTxReference = string.Empty;
 
             OnPropertyChanged(nameof(NewTxType));
+            OnPropertyChanged(nameof(IsNewTxInflow));
+            OnPropertyChanged(nameof(IsNewTxOutflow));
             OnPropertyChanged(nameof(NewTxDate));
             OnPropertyChanged(nameof(NewTxAmount));
             OnPropertyChanged(nameof(NewTxCurrency));

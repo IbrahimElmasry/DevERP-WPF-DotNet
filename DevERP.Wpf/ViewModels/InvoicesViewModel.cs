@@ -97,6 +97,7 @@ public class InvoicesViewModel : ViewModelBase
     public IAsyncRelayCommand MarkAsPaidCommand { get; }
     public IAsyncRelayCommand ExportPdfCommand { get; }
     public IRelayCommand OpenCreateInvoiceCommand { get; }
+    public IRelayCommand CloseCreateInvoiceCommand { get; }
     public IRelayCommand AddLineItemCommand { get; }
     public IRelayCommand<InvoiceItem> RemoveLineItemCommand { get; }
     public IAsyncRelayCommand SaveInvoiceCommand { get; }
@@ -109,6 +110,8 @@ public class InvoicesViewModel : ViewModelBase
         RefreshCommand = new AsyncRelayCommand(LoadInvoicesAsync);
         MarkAsPaidCommand = new AsyncRelayCommand(MarkAsPaidAsync);
         ExportPdfCommand = new AsyncRelayCommand(ExportPdfAsync);
+
+        CloseCreateInvoiceCommand = new RelayCommand(() => IsCreateInvoiceOpen = false);
 
         OpenCreateInvoiceCommand = new RelayCommand(async () =>
         {
