@@ -1,0 +1,383 @@
+<UserControl x:Class="DevERP.Desktop.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="750" d:DesignWidth="1100">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Header & Actions -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Financial Overview &amp; Key Metrics" FontSize="22" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                <TextBlock Text="Performance summary for the past 30 days and pending billing." FontSize="13" Foreground="#94A3B8" Margin="0,3,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Command="{Binding RefreshCommand}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Padding="14,8" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,8,0" Foreground="#38BDF8"/>
+                        <TextBlock Text="Refresh" FontWeight="Medium"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- KPI Cards Grid (4 Cards) -->
+        <Grid Grid.Row="1" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Card 1: 30d Inflow (Emerald Gradient) -->
+            <Border Grid.Column="0" BorderThickness="1.5" CornerRadius="10" Padding="18">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#059669" Offset="0"/>
+                        <GradientStop Color="#34D399" Offset="0.5"/>
+                        <GradientStop Color="#047857" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#142B24" Offset="0"/>
+                        <GradientStop Color="#0D171C" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Border Background="#064E3B" CornerRadius="6" Padding="6" Margin="0,0,10,0">
+                            <ui:SymbolIcon Symbol="ArrowTrendingLines24" Foreground="#34D399" FontSize="18"/>
+                        </Border>
+                        <TextBlock Text="30-Day Inflow" FontSize="13" FontWeight="SemiBold" Foreground="#A7F3D0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Margin="0,14,0,4" FontSize="22" FontWeight="Bold" Foreground="#10B981">
+                        <Run Text="+"/>
+                        <Run Text="{Binding ThirtyDaysInflow, StringFormat={}{0:N2}}"/>
+                        <Run Text="{Binding BaseCurrency}" FontSize="12" Foreground="#6EE7B7"/>
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" Text="Client payments &amp; realized revenue" FontSize="11" Foreground="#6EE7B7"/>
+                </Grid>
+            </Border>
+
+            <!-- Card 2: 30d Outflow (Rose Gradient) -->
+            <Border Grid.Column="2" BorderThickness="1.5" CornerRadius="10" Padding="18">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#E11D48" Offset="0"/>
+                        <GradientStop Color="#FB7185" Offset="0.5"/>
+                        <GradientStop Color="#9F1239" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#2B141C" Offset="0"/>
+                        <GradientStop Color="#0D171C" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Border Background="#4C0519" CornerRadius="6" Padding="6" Margin="0,0,10,0">
+                            <ui:SymbolIcon Symbol="ArrowDown24" Foreground="#FB7185" FontSize="18"/>
+                        </Border>
+                        <TextBlock Text="30-Day Outflow" FontSize="13" FontWeight="SemiBold" Foreground="#FECDD3" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Margin="0,14,0,4" FontSize="22" FontWeight="Bold" Foreground="#F43F5E">
+                        <Run Text="-"/>
+                        <Run Text="{Binding ThirtyDaysOutflow, StringFormat={}{0:N2}}"/>
+                        <Run Text="{Binding BaseCurrency}" FontSize="12" Foreground="#FDA4AF"/>
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" Text="VPS, tools, taxes &amp; expenses" FontSize="11" Foreground="#FDA4AF"/>
+                </Grid>
+            </Border>
+
+            <!-- Card 3: Net Balance (Cyan Gradient) -->
+            <Border Grid.Column="4" BorderThickness="1.5" CornerRadius="10" Padding="18">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#0284C7" Offset="0"/>
+                        <GradientStop Color="#38BDF8" Offset="0.5"/>
+                        <GradientStop Color="#0E7490" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#122536" Offset="0"/>
+                        <GradientStop Color="#0D171C" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Border Background="#1E1B4B" CornerRadius="6" Padding="6" Margin="0,0,10,0">
+                            <ui:SymbolIcon Symbol="Vault24" Foreground="#818CF8" FontSize="18"/>
+                        </Border>
+                        <TextBlock Text="Net Cash Flow" FontSize="13" FontWeight="SemiBold" Foreground="#BAE6FD" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Margin="0,14,0,4" FontSize="22" FontWeight="Bold" Foreground="#38BDF8">
+                        <Run Text="{Binding NetBalance, StringFormat={}{0:N2}}"/>
+                        <Run Text="{Binding BaseCurrency}" FontSize="12" Foreground="#7DD3FC"/>
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" Text="Net operating cash flow in 30 days" FontSize="11" Foreground="#7DD3FC"/>
+                </Grid>
+            </Border>
+
+            <!-- Card 4: Active Clients & Pending (Amber Gradient) -->
+            <Border Grid.Column="6" BorderThickness="1.5" CornerRadius="10" Padding="18">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#D97706" Offset="0"/>
+                        <GradientStop Color="#FBBF24" Offset="0.5"/>
+                        <GradientStop Color="#B45309" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#2C2114" Offset="0"/>
+                        <GradientStop Color="#0D171C" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Border Background="#451A03" CornerRadius="6" Padding="6" Margin="0,0,10,0">
+                            <ui:SymbolIcon Symbol="ReceiptMoney24" Foreground="#F59E0B" FontSize="18"/>
+                        </Border>
+                        <TextBlock Text="Pending Invoices" FontSize="13" FontWeight="SemiBold" Foreground="#FDE68A" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Margin="0,14,0,4" FontSize="22" FontWeight="Bold" Foreground="#F59E0B">
+                        <Run Text="{Binding PendingInvoicesAmount, StringFormat={}{0:N2}}"/>
+                        <Run Text="{Binding BaseCurrency}" FontSize="12" Foreground="#FDE68A"/>
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" FontSize="11" Foreground="#FDE68A">
+                        <Run Text="{Binding PendingInvoicesCount}"/>
+                        <Run Text="pending invoice(s) • "/>
+                        <Run Text="{Binding ActiveClientsCount}"/>
+                        <Run Text="active client(s)"/>
+                    </TextBlock>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Two Column Content: Recent Ledger & Pending Invoices -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Recent Transactions Ledger -->
+            <Border Grid.Column="0" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Recent Cash Flow Transactions" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                        <Button HorizontalAlignment="Right" Command="{Binding NavigateCommand}" CommandParameter="CashFlow"
+                                Background="Transparent" BorderThickness="0" Foreground="#38BDF8" Cursor="Hand" Padding="4,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="View Full Ledger" FontSize="12" Margin="0,0,4,0"/>
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <ListView Grid.Row="1" ItemsSource="{Binding RecentTransactions}" Background="Transparent" BorderThickness="0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="8,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Type icon pill -->
+                                        <Border Grid.Column="0" CornerRadius="6" Width="36" Height="36" Margin="0,0,12,0"
+                                                Background="#1E293B" VerticalAlignment="Center">
+                                            <ui:SymbolIcon Symbol="{Binding Type, ConverterParameter=icon}" FontSize="16"
+                                                           Foreground="{Binding Type, Converter={StaticResource TransactionTypeToBrushConverter}}"/>
+                                        </Border>
+
+                                        <!-- Details -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Description}" FontSize="13" FontWeight="Medium" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                <Border Background="#1E293B" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                                    <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#94A3B8"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding Date, StringFormat={}{0:yyyy-MM-dd}}" FontSize="11" Foreground="#64748B"/>
+                                                <TextBlock Text=" • Ref: " FontSize="11" Foreground="#64748B"
+                                                           Visibility="{Binding Reference, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                <TextBlock Text="{Binding Reference}" FontSize="11" Foreground="#94A3B8"
+                                                           Visibility="{Binding Reference, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Amount -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                            <TextBlock FontSize="14" FontWeight="Bold" HorizontalAlignment="Right"
+                                                       Foreground="{Binding Type, Converter={StaticResource TransactionTypeToBrushConverter}}">
+                                                <Run Text="{Binding Type, Converter={StaticResource TransactionTypeToPrefixConverter}}"/>
+                                                <Run Text="{Binding Amount, StringFormat={}{0:N2}}"/>
+                                                <Run Text="{Binding Currency}" FontSize="11"/>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding AmountInBaseCurrency, StringFormat={}({0:N2} Base)}"
+                                                       FontSize="10" Foreground="#64748B" HorizontalAlignment="Right"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <!-- Right: Pending Invoices -->
+            <Border Grid.Column="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Pending Invoices" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                        <Button HorizontalAlignment="Right" Command="{Binding NavigateCommand}" CommandParameter="Invoices"
+                                Background="Transparent" BorderThickness="0" Foreground="#38BDF8" Cursor="Hand" Padding="4,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Manage Invoices" FontSize="12" Margin="0,0,4,0"/>
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <ListView Grid.Row="1" ItemsSource="{Binding PendingInvoices}" Background="Transparent" BorderThickness="0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="8,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Invoice info -->
+                                        <StackPanel Grid.Row="0" Grid.Column="0">
+                                            <TextBlock Text="{Binding InvoiceNumber}" FontSize="13" FontWeight="Bold" Foreground="#38BDF8"/>
+                                            <TextBlock Text="{Binding Client.Name}" FontSize="12" Foreground="#CBD5E1" Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- Status pill -->
+                                        <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" Padding="6,2"
+                                                Background="{Binding Status, Converter={StaticResource InvoiceStatusToBackgroundConverter}}">
+                                            <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="{Binding Status, Converter={StaticResource InvoiceStatusToBrushConverter}}"/>
+                                        </Border>
+
+                                        <!-- Due date & Amount -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,6,0,0" FontSize="11" Foreground="#64748B">
+                                            <Run Text="Due: "/>
+                                            <Run Text="{Binding DueDate, StringFormat={}{0:yyyy-MM-dd}}" FontWeight="Medium" Foreground="#94A3B8"/>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,6,0,0" FontSize="13" FontWeight="Bold" Foreground="#F8FAFC" HorizontalAlignment="Right">
+                                            <Run Text="{Binding TotalAmount, StringFormat={}{0:N2}}"/>
+                                            <Run Text="{Binding Currency}" FontSize="11" Foreground="#94A3B8"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Quick Action Shortcuts bottom bar -->
+        <Border Grid.Row="3" Margin="0,16,0,0" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Flash24" Foreground="#F59E0B" Margin="0,0,8,0" FontSize="18"/>
+                    <TextBlock Text="Quick Actions:" FontSize="13" FontWeight="SemiBold" Foreground="#F1F5F9" VerticalAlignment="Center"/>
+                    <TextBlock Text="Streamline your workflow with instant billing and tracking." FontSize="12" Foreground="#64748B" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding NavigateCommand}" CommandParameter="Clients"
+                            Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,0,8,0" Padding="12,6">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Add24" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                            <TextBlock Text="New Client / Project" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateCommand}" CommandParameter="Invoices"
+                            Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,0,8,0" Padding="12,6">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="DocumentBulletList24" Margin="0,0,6,0" Foreground="#34D399"/>
+                            <TextBlock Text="Create Invoice" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding NavigateCommand}" CommandParameter="CashFlow"
+                            Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Padding="12,6">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Money24" Margin="0,0,6,0" Foreground="#F43F5E"/>
+                            <TextBlock Text="Record Transaction" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

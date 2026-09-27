@@ -1,0 +1,45 @@
+<Application x:Class="DevERP.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:converters="clr-namespace:DevERP.Desktop.Converters"
+             xmlns:vm="clr-namespace:DevERP.Desktop.ViewModels"
+             xmlns:views="clr-namespace:DevERP.Desktop.Views">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:InvoiceStatusToBrushConverter x:Key="InvoiceStatusToBrushConverter" />
+            <converters:InvoiceStatusToBackgroundConverter x:Key="InvoiceStatusToBackgroundConverter" />
+            <converters:InvoiceStatusToBorderBrushConverter x:Key="InvoiceStatusToBorderBrushConverter" />
+            <converters:TransactionTypeToBrushConverter x:Key="TransactionTypeToBrushConverter" />
+            <converters:TransactionTypeToBackgroundConverter x:Key="TransactionTypeToBackgroundConverter" />
+            <converters:TransactionTypeToBorderBrushConverter x:Key="TransactionTypeToBorderBrushConverter" />
+            <converters:TransactionTypeToPrefixConverter x:Key="TransactionTypeToPrefixConverter" />
+            <converters:ProjectStatusToBrushConverter x:Key="ProjectStatusToBrushConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+            <!-- MVVM View Mappings -->
+            <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+                <views:DashboardView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ClientsViewModel}">
+                <views:ClientsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:InvoicesViewModel}">
+                <views:InvoicesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CashFlowViewModel}">
+                <views:CashFlowView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DevERP.Core/DevERP.Core.csproj" />
+  <Project Path="DevERP.Infrastructure/DevERP.Infrastructure.csproj" />
+  <Project Path="DevERP.Wpf/DevERP.Wpf.csproj" />
+</Solution>

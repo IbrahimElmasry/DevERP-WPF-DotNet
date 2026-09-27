@@ -1,0 +1,243 @@
+<UserControl x:Class="DevERP.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="750" d:DesignWidth="1100">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Settings &amp; Developer Identity" FontSize="22" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                    <TextBlock Text="Configure profile metadata, international wire bank details, base currency, and SQLite database backups." FontSize="13" Foreground="#94A3B8" Margin="0,3,0,0"/>
+                </StackPanel>
+
+                <Button HorizontalAlignment="Right" Command="{Binding SaveSettingsCommand}"
+                        Background="#2563EB" BorderBrush="#3B82F6" Foreground="White" Padding="16,8">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Save24" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Save Changes" FontSize="13" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Section 1: Developer Identity -->
+            <Border Grid.Row="1" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <ui:SymbolIcon Symbol="Person24" Foreground="#38BDF8" FontSize="18" Margin="0,0,8,0"/>
+                        <TextBlock Text="Developer Identity &amp; Contact Information" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Full Legal Name *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.FullName, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Professional Title / Tagline" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.ProfessionalTitle, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Email Address" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.Email, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Phone Number" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.Phone, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Billing Address (Printed on Invoices)" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.Address, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Tax ID / Registration Number" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.TaxNumber, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Section 2: Bank Wire Coordinates -->
+            <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <ui:SymbolIcon Symbol="BuildingBank24" Foreground="#34D399" FontSize="18" Margin="0,0,8,0"/>
+                        <TextBlock Text="Bank Wire Transfer Coordinates (Embedded in Invoices)" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Bank Name *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.BankName, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Account Holder / Beneficiary Name *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.BankAccountHolder, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="International Bank Account Number (IBAN) *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.Iban, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0" FontFamily="Consolas"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="SWIFT / BIC Code *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.SwiftBic, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0" FontFamily="Consolas"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Section 3: Currency & FX Rates -->
+            <Border Grid.Row="3" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <ui:SymbolIcon Symbol="Money24" Foreground="#F59E0B" FontSize="18" Margin="0,0,8,0"/>
+                        <TextBlock Text="Currency &amp; Foreign Exchange Defaults" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Base Operating Currency" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.BaseCurrency, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Default USD to EGP Rate" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.UsdToEgpRate, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Default EUR to EGP Rate" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.EurToEgpRate, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Section 4: SQLite Database & Backup -->
+            <Border Grid.Row="4" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <ui:SymbolIcon Symbol="Database24" Foreground="#A78BFA" FontSize="18" Margin="0,0,8,0"/>
+                            <TextBlock Text="SQLite Database Storage &amp; Backup" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                        </StackPanel>
+                        <TextBlock FontSize="12" Foreground="#94A3B8">
+                            <Run Text="Local SQLite File Location: "/>
+                            <Run Text="{Binding DatabasePath}" Foreground="#38BDF8" FontFamily="Consolas"/>
+                        </TextBlock>
+                        <TextBlock Text="Perform full offsite or local database backups to safeguard your financial ledger, invoices, and client records." FontSize="11" Foreground="#64748B" Margin="0,3,0,0"/>
+                    </StackPanel>
+
+                    <!-- Export Backup Button -->
+                    <Button Grid.Column="1" Command="{Binding ExportDatabaseBackupCommand}" VerticalAlignment="Center"
+                            Background="#1E293B" BorderBrush="#475569" Foreground="#F8FAFC" Padding="14,8">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="16" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                            <TextBlock Text="Export SQLite Database" FontSize="12" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Section 5: Windows Desktop Integration & Shortcuts -->
+            <Border Grid.Row="5" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <ui:SymbolIcon Symbol="Desktop24" Foreground="#38BDF8" FontSize="18" Margin="0,0,8,0"/>
+                            <TextBlock Text="Windows Desktop Integration" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                        </StackPanel>
+                        <TextBlock Text="Install a native Windows shell shortcut (.lnk) on your Desktop for one-click launching with the DevERP icon."
+                                   FontSize="12" Foreground="#94A3B8"/>
+                        <TextBlock Text="The shortcut automatically pins the current executable path and sets the working directory."
+                                   FontSize="11" Foreground="#64748B" Margin="0,3,0,0"/>
+                    </StackPanel>
+
+                    <!-- Create Desktop Shortcut Button -->
+                    <Button Grid.Column="1" Command="{Binding CreateDesktopShortcutCommand}" VerticalAlignment="Center"
+                            Background="#0369A1" BorderBrush="#38BDF8" Foreground="White" Padding="16,8">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Link24" FontSize="16" Margin="0,0,6,0"/>
+                            <TextBlock Text="Create Desktop Shortcut" FontSize="12" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
