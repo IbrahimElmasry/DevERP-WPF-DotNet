@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
 using CommunityToolkit.Mvvm.Input;
 using DevERP.Core.Enums;
 using DevERP.Core.Interfaces;
 using DevERP.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
 
 namespace DevERP.Desktop.ViewModels;
 
@@ -165,11 +168,13 @@ public class CashFlowViewModel : ViewModelBase
     public IRelayCommand CloseAddTransactionCommand { get; }
     public IAsyncRelayCommand SaveTransactionCommand { get; }
     public IAsyncRelayCommand<CashFlowTransaction> DeleteTransactionCommand { get; }
+    public IRelayCommand ExportCsvCommand { get; }
 
     public CashFlowViewModel(IAppDbContext dbContext)
     {
         _dbContext = dbContext;
         RefreshCommand = new AsyncRelayCommand(LoadTransactionsAsync);
+        ExportCsvCommand = new RelayCommand(ExportToCsv);
 
         CloseAddTransactionCommand = new RelayCommand(() => IsAddTransactionOpen = false);
 
@@ -336,6 +341,36 @@ public class CashFlowViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = $"Error deleting transaction: {ex.Message}";
+        }
+    }
+
+    private void ExportToCsv()
+    {
+        try
+        {
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "CSV Spreadsheet (*.csv)|*.csv",
+                FileName = $"CashFlow_DevERP_{DateTime.Now:yyyyMMdd_HHmm}.csv"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Id,Date,Type,Category,Description,Amount,Currency,ExchangeRate,AmountInBaseCurrency,Reference");
+                foreach (var tx in FilteredTransactions)
+                {
+                    var cleanDesc = tx.Description?.Replace("\"", "\"\"") ?? "";
+                    var cleanRef = tx.Reference?.Replace("\"", "\"\"") ?? "";
+                    sb.AppendLine($"{tx.Id},\"{tx.Date:yyyy-MM-dd}\",\"{tx.Type}\",\"{tx.Category}\",\"{cleanDesc}\",{tx.Amount},{tx.Currency},{tx.ExchangeRate},{tx.AmountInBaseCurrency},\"{cleanRef}\"");
+                }
+                File.WriteAllText(saveDialog.FileName, sb.ToString(), Encoding.UTF8);
+                Notify($"Exported {FilteredTransactions.Count} transactions to CSV.", "CSV Exported", Wpf.Ui.Controls.InfoBarSeverity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Notify($"Failed to export CSV: {ex.Message}", "Export Error", Wpf.Ui.Controls.InfoBarSeverity.Error);
         }
     }
 }

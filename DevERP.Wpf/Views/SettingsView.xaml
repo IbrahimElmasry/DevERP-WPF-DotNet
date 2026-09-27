@@ -79,7 +79,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid>
+                    <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="16"/>
@@ -96,15 +96,45 @@
                             <TextBox Text="{Binding Profile.TaxNumber, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
                         </StackPanel>
                     </Grid>
+
+                    <!-- Custom Invoice Logo Upload -->
+                    <Border Height="1" Background="#1E293B" Margin="0,14,0,14"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Invoice Brand Logo (.PNG, .JPG)" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBlock Text="{Binding Profile.LogoPath, TargetNullValue='No logo uploaded (Vector DevERP badge used)'}"
+                                       FontSize="11" Foreground="#38BDF8" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Command="{Binding UploadLogoCommand}"
+                                    Background="#1E293B" BorderBrush="#38BDF8" Foreground="#F8FAFC" Padding="12,6" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Image24" FontSize="14" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                                    <TextBlock Text="Upload Logo" FontSize="11" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding RemoveLogoCommand}"
+                                    Background="Transparent" BorderBrush="#EF4444" Foreground="#EF4444" Padding="10,6">
+                                <TextBlock Text="Remove" FontSize="11"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- Section 2: Bank Wire Coordinates -->
+            <!-- Section 2: Bank Wire & InstaPay Coordinates -->
             <Border Grid.Row="2" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <ui:SymbolIcon Symbol="BuildingBank24" Foreground="#34D399" FontSize="18" Margin="0,0,8,0"/>
-                        <TextBlock Text="Bank Wire Transfer Coordinates (Embedded in Invoices)" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                        <TextBlock Text="Bank Wire &amp; InstaPay Egypt (IPN) Coordinates" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
                     </StackPanel>
 
                     <Grid Margin="0,0,0,12">
@@ -125,7 +155,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid>
+                    <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="16"/>
@@ -142,10 +172,37 @@
                             <TextBox Text="{Binding Profile.SwiftBic, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0" FontFamily="Consolas"/>
                         </StackPanel>
                     </Grid>
+
+                    <!-- InstaPay Egypt (IPN) Sub-section -->
+                    <Border Height="1" Background="#1E293B" Margin="0,6,0,14"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Border Background="#064E3B" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                            <TextBlock Text="INSTAPAY IPN" FontSize="9" FontWeight="Bold" Foreground="#34D399"/>
+                        </Border>
+                        <TextBlock Text="InstaPay Egypt Instant Payment Details" FontSize="13" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="InstaPay Payment Address (IPA / Handle) *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.InstaPayAddress, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#34D399" Margin="0,3,0,0" FontFamily="Consolas"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="InstaPay Registered Mobile Number *" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.InstaPayPhone, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0" FontFamily="Consolas"/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- Section 3: Currency & FX Rates -->
+            <!-- Section 3: Currency & FX Rates with Live Sync -->
             <Border Grid.Row="3" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
@@ -156,26 +213,44 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="14"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="14"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Base Operating Currency" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBlock Text="Base Currency" FontSize="11" Foreground="#94A3B8"/>
                             <TextBox Text="{Binding Profile.BaseCurrency, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Default USD to EGP Rate" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBlock Text="USD to EGP" FontSize="11" Foreground="#94A3B8"/>
                             <TextBox Text="{Binding Profile.UsdToEgpRate, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="4">
-                            <TextBlock Text="Default EUR to EGP Rate" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBlock Text="EUR to EGP" FontSize="11" Foreground="#94A3B8"/>
                             <TextBox Text="{Binding Profile.EurToEgpRate, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
                         </StackPanel>
+
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="SAR to EGP" FontSize="11" Foreground="#94A3B8"/>
+                            <TextBox Text="{Binding Profile.SarToEgpRate, UpdateSourceTrigger=PropertyChanged}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <!-- Sync Live Rates Button -->
+                        <Button Grid.Column="8" Command="{Binding SyncLiveFxRatesCommand}" VerticalAlignment="Bottom"
+                                Background="#1E293B" BorderBrush="#0284C7" Foreground="#38BDF8" Padding="14,7" Cursor="Hand" Margin="0,0,0,1">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowSync24" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="Sync Live Rates" FontSize="11" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -219,7 +294,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- Section 5: SQLite Database & Backup -->
+            <!-- Section 5: SQLite Database & Backup / Restore -->
             <Border Grid.Row="5" Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -230,7 +305,7 @@
                     <StackPanel Grid.Column="0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                             <ui:SymbolIcon Symbol="Database24" Foreground="#A78BFA" FontSize="18" Margin="0,0,8,0"/>
-                            <TextBlock Text="SQLite Database Storage &amp; Backup" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
+                            <TextBlock Text="SQLite Database Storage, Backup &amp; Restore" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"/>
                         </StackPanel>
                         <TextBlock FontSize="12" Foreground="#94A3B8">
                             <Run Text="Local SQLite File Location: "/>
@@ -239,14 +314,24 @@
                         <TextBlock Text="Perform full offsite or local database backups to safeguard your financial ledger, invoices, and client records." FontSize="11" Foreground="#64748B" Margin="0,3,0,0"/>
                     </StackPanel>
 
-                    <!-- Export Backup Button -->
-                    <Button Grid.Column="1" Command="{Binding ExportDatabaseBackupCommand}" VerticalAlignment="Center"
-                            Background="#1E293B" BorderBrush="#475569" Foreground="#F8FAFC" Padding="14,8">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="16" Margin="0,0,6,0" Foreground="#38BDF8"/>
-                            <TextBlock Text="Export SQLite Database" FontSize="12" FontWeight="Bold"/>
-                        </StackPanel>
-                    </Button>
+                    <!-- Export & Restore Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Command="{Binding ExportDatabaseBackupCommand}"
+                                Background="#1E293B" BorderBrush="#475569" Foreground="#F8FAFC" Padding="14,8" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="16" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                                <TextBlock Text="Export Backup" FontSize="12" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding RestoreDatabaseBackupCommand}"
+                                Background="#1E293B" BorderBrush="#F43F5E" Foreground="#FDA4AF" Padding="14,8">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowUpload24" FontSize="16" Margin="0,0,6,0" Foreground="#F43F5E"/>
+                                <TextBlock Text="Restore Backup" FontSize="12" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
 

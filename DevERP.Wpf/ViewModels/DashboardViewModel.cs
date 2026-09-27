@@ -63,6 +63,7 @@ public class DashboardViewModel : ViewModelBase
 
     public ObservableCollection<CashFlowTransaction> RecentTransactions { get; } = new();
     public ObservableCollection<Invoice> PendingInvoices { get; } = new();
+    public ObservableCollection<MonthlyCashFlowBar> MonthlyTrends { get; } = new();
 
     public IAsyncRelayCommand RefreshCommand { get; }
     public IRelayCommand<string> NavigateCommand { get; }
@@ -146,6 +147,48 @@ public class DashboardViewModel : ViewModelBase
             {
                 PendingInvoices.Add(inv);
             }
+
+            // 6-Month Monthly Trends
+            MonthlyTrends.Clear();
+            var sixMonthsAgo = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(-5);
+            var historyTxs = await _dbContext.CashFlowTransactions
+                .Where(t => t.Date >= sixMonthsAgo)
+                .ToListAsync();
+
+            var monthlyData = new List<MonthlyCashFlowBar>();
+            decimal maxFlow = 1m;
+
+            for (int i = -5; i <= 0; i++)
+            {
+                var targetMonth = DateTime.UtcNow.AddMonths(i);
+                var monthStart = new DateTime(targetMonth.Year, targetMonth.Month, 1);
+                var monthEnd = monthStart.AddMonths(1);
+
+                var monthTxs = historyTxs.Where(t => t.Date >= monthStart && t.Date < monthEnd).ToList();
+                var mInflow = monthTxs.Where(t => t.Type == TransactionType.Inflow).Sum(t => t.AmountInBaseCurrency);
+                var mOutflow = monthTxs.Where(t => t.Type == TransactionType.Outflow).Sum(t => t.AmountInBaseCurrency);
+                var mNet = mInflow - mOutflow;
+
+                if (mInflow > maxFlow) maxFlow = mInflow;
+                if (mOutflow > maxFlow) maxFlow = mOutflow;
+
+                monthlyData.Add(new MonthlyCashFlowBar
+                {
+                    MonthLabel = targetMonth.ToString("MMM yy"),
+                    Inflow = mInflow,
+                    Outflow = mOutflow,
+                    Net = mNet,
+                    Tooltip = $"{targetMonth:MMMM yyyy}\nInflow: {mInflow:N2} {BaseCurrency}\nOutflow: {mOutflow:N2} {BaseCurrency}\nNet: {mNet:N2} {BaseCurrency}"
+                });
+            }
+
+            const double maxHeight = 80.0;
+            foreach (var m in monthlyData)
+            {
+                m.InflowHeight = Math.Max(4, (double)(m.Inflow / maxFlow) * maxHeight);
+                m.OutflowHeight = Math.Max(4, (double)(m.Outflow / maxFlow) * maxHeight);
+                MonthlyTrends.Add(m);
+            }
         }
         catch (Exception ex)
         {
@@ -156,4 +199,15 @@ public class DashboardViewModel : ViewModelBase
             IsBusy = false;
         }
     }
+}
+
+public class MonthlyCashFlowBar
+{
+    public string MonthLabel { get; set; } = string.Empty;
+    public decimal Inflow { get; set; }
+    public decimal Outflow { get; set; }
+    public decimal Net { get; set; }
+    public double InflowHeight { get; set; }
+    public double OutflowHeight { get; set; }
+    public string Tooltip { get; set; } = string.Empty;
 }

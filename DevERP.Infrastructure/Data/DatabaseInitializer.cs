@@ -12,17 +12,33 @@ public static class DatabaseInitializer
         await context.Database.EnsureCreatedAsync();
 
         // Migrate columns if upgrading from earlier version without breaking data
-        try
-        {
-            await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN IsPinEnabled INTEGER NOT NULL DEFAULT 1;");
-        }
-        catch { /* Column already exists */ }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN IsPinEnabled INTEGER NOT NULL DEFAULT 1;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN SecurityPin TEXT NOT NULL DEFAULT '1234';"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN InstaPayAddress TEXT NOT NULL DEFAULT 'ibrahim@instapay';"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN InstaPayPhone TEXT NOT NULL DEFAULT '+20 101 980 4919';"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN SarToEgpRate NUMERIC NOT NULL DEFAULT 12.95;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN LogoPath TEXT NULL;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN AutoLockMinutes INTEGER NOT NULL DEFAULT 0;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE Invoices ADD COLUMN PaymentMethod INTEGER NOT NULL DEFAULT 0;"); } catch { }
 
+        // Automated Overdue Invoice Evaluation
         try
         {
-            await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN SecurityPin TEXT NOT NULL DEFAULT '1234';");
+            var now = DateTime.UtcNow.Date;
+            var overdueInvoices = await context.Invoices
+                .Where(i => i.Status == InvoiceStatus.Sent && i.DueDate < now)
+                .ToListAsync();
+
+            if (overdueInvoices.Count > 0)
+            {
+                foreach (var inv in overdueInvoices)
+                {
+                    inv.Status = InvoiceStatus.Overdue;
+                }
+                await context.SaveChangesAsync();
+            }
         }
-        catch { /* Column already exists */ }
+        catch { }
 
         var dbPath = AppDbContext.GetDatabasePath();
         var markerPath = Path.Combine(Path.GetDirectoryName(dbPath) ?? "", ".deverp_initialized");
@@ -57,9 +73,12 @@ public static class DatabaseInitializer
             BankAccountHolder = "Ibrahim Tarek",
             Iban = "EG380001000100000012345678901",
             SwiftBic = "NBEGEGCX001",
+            InstaPayAddress = "ibrahim@instapay",
+            InstaPayPhone = "+20 101 980 4919",
             BaseCurrency = "EGP",
             UsdToEgpRate = 48.50m,
             EurToEgpRate = 52.00m,
+            SarToEgpRate = 12.95m,
             IsPinEnabled = true,
             SecurityPin = "1234"
         });

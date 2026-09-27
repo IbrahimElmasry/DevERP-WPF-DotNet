@@ -49,9 +49,18 @@ public class InvoicePdfService : IInvoicePdfService
     {
         container.Row(row =>
         {
-            // Left: Developer identity
+            // Left: Developer identity & optional custom logo
             row.RelativeItem(7).Column(col =>
             {
+                if (!string.IsNullOrWhiteSpace(profile.LogoPath) && File.Exists(profile.LogoPath))
+                {
+                    try
+                    {
+                        col.Item().PaddingBottom(6).MaxHeight(48).MaxWidth(140).Image(profile.LogoPath);
+                    }
+                    catch { }
+                }
+
                 col.Item().Text(profile.FullName)
                     .FontSize(20)
                     .Bold()
@@ -265,43 +274,100 @@ public class InvoicePdfService : IInvoicePdfService
                 });
             });
 
-            // Bank Wire / Payment Details Card
-            col.Item().PaddingTop(18).Container()
-                .Background(Colors.Grey.Lighten4)
-                .Border(1)
-                .BorderColor(Colors.Grey.Lighten2)
-                .Padding(12)
-                .Column(bank =>
+            // Payment Coordinates (Bank Wire / InstaPay IPN / Both)
+            col.Item().PaddingTop(18).Column(payCol =>
+            {
+                if (invoice.PaymentMethod == Core.Enums.PaymentMethod.BankWire || invoice.PaymentMethod == Core.Enums.PaymentMethod.Both)
                 {
-                    bank.Item().Text("BANK WIRE TRANSFER COORDINATES")
-                        .FontSize(9.5f)
-                        .Bold()
-                        .FontColor(Colors.Blue.Darken3);
+                    payCol.Item().PaddingBottom(invoice.PaymentMethod == Core.Enums.PaymentMethod.Both ? 8 : 0).Container()
+                        .Background(Colors.Grey.Lighten4)
+                        .Border(1)
+                        .BorderColor(Colors.Grey.Lighten2)
+                        .Padding(12)
+                        .Column(bank =>
+                        {
+                            bank.Item().Text("BANK WIRE TRANSFER COORDINATES")
+                                .FontSize(9.5f)
+                                .Bold()
+                                .FontColor(Colors.Blue.Darken3);
 
-                    bank.Item().PaddingTop(4).Row(r =>
-                    {
-                        r.RelativeItem(4).Text("Beneficiary Name:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
-                        r.RelativeItem(8).Text(profile.BankAccountHolder).FontSize(8.5f).Bold();
-                    });
+                            bank.Item().PaddingTop(4).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("Beneficiary Name:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.BankAccountHolder).FontSize(8.5f).Bold();
+                            });
 
-                    bank.Item().PaddingTop(2).Row(r =>
-                    {
-                        r.RelativeItem(4).Text("Bank Name:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
-                        r.RelativeItem(8).Text(profile.BankName).FontSize(8.5f).Bold();
-                    });
+                            bank.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("Bank Name:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.BankName).FontSize(8.5f).Bold();
+                            });
 
-                    bank.Item().PaddingTop(2).Row(r =>
-                    {
-                        r.RelativeItem(4).Text("IBAN:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
-                        r.RelativeItem(8).Text(profile.Iban).FontSize(8.5f).Bold().FontColor(Colors.Blue.Darken3);
-                    });
+                            bank.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("IBAN:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.Iban).FontSize(8.5f).Bold().FontColor(Colors.Blue.Darken3);
+                            });
 
-                    bank.Item().PaddingTop(2).Row(r =>
-                    {
-                        r.RelativeItem(4).Text("SWIFT / BIC:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
-                        r.RelativeItem(8).Text(profile.SwiftBic).FontSize(8.5f).Bold();
-                    });
-                });
+                            bank.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("SWIFT / BIC:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.SwiftBic).FontSize(8.5f).Bold();
+                            });
+                        });
+                }
+
+                if (invoice.PaymentMethod == Core.Enums.PaymentMethod.InstaPay || invoice.PaymentMethod == Core.Enums.PaymentMethod.Both)
+                {
+                    payCol.Item().Container()
+                        .Background(Colors.Green.Lighten5)
+                        .Border(1)
+                        .BorderColor(Colors.Green.Lighten2)
+                        .Padding(12)
+                        .Column(ipn =>
+                        {
+                            ipn.Item().Row(ipnRow =>
+                            {
+                                ipnRow.RelativeItem().Text("INSTAPAY EGYPT (IPN) — INSTANT PAYMENT COORDINATES")
+                                    .FontSize(9.5f)
+                                    .Bold()
+                                    .FontColor(Colors.Green.Darken3);
+
+                                ipnRow.AutoItem().Container()
+                                    .Background(Colors.Green.Darken2)
+                                    .PaddingVertical(2)
+                                    .PaddingHorizontal(6)
+                                    .Text("INSTANT")
+                                    .FontSize(7.5f)
+                                    .Bold()
+                                    .FontColor(Colors.White);
+                            });
+
+                            ipn.Item().PaddingTop(4).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("InstaPay Address (IPA):").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.InstaPayAddress).FontSize(8.5f).Bold().FontColor(Colors.Green.Darken3);
+                            });
+
+                            ipn.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("Registered Mobile:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.InstaPayPhone).FontSize(8.5f).Bold();
+                            });
+
+                            ipn.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem(4).Text("Account Name:").FontSize(8.5f).FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem(8).Text(profile.FullName).FontSize(8.5f).Bold();
+                            });
+
+                            ipn.Item().PaddingTop(3).Text("Pay instantly from any Egyptian bank or mobile wallet via the InstaPay application using the IPA address or mobile number above.")
+                                .FontSize(7.5f)
+                                .Italic()
+                                .FontColor(Colors.Grey.Darken2);
+                        });
+                }
+            });
 
             // Notes / Payment Instructions
             if (!string.IsNullOrWhiteSpace(invoice.Notes))

@@ -16,12 +16,21 @@ public class DeveloperProfile
     public string Iban { get; set; } = "EG380001000100000012345678901";
     public string SwiftBic { get; set; } = "NBEGEGCX001";
 
+    // InstaPay Egypt (IPN) coordinates
+    public string InstaPayAddress { get; set; } = "ibrahim@instapay";
+    public string InstaPayPhone { get; set; } = "+20 101 980 4919";
+
     // Currency & FX settings
     public string BaseCurrency { get; set; } = "EGP";
     public decimal UsdToEgpRate { get; set; } = 48.50m;
     public decimal EurToEgpRate { get; set; } = 52.00m;
+    public decimal SarToEgpRate { get; set; } = 12.95m;
+
+    // Custom Logo for Invoices
+    public string? LogoPath { get; set; }
 
     // Security & Authentication (4-Digit PIN)
     public bool IsPinEnabled { get; set; } = true;
     public string SecurityPin { get; set; } = "1234";
+    public int AutoLockMinutes { get; set; } = 0; // 0 = disabled
 }

@@ -92,10 +92,46 @@ public class InvoicesViewModel : ViewModelBase
     public decimal NewItemQty { get; set; } = 1;
     public decimal NewItemUnitPrice { get; set; } = 5000;
 
+    // Payment Method selection for New Invoice
+    private PaymentMethod _newInvoicePaymentMethod = PaymentMethod.BankWire;
+    public PaymentMethod NewInvoicePaymentMethod
+    {
+        get => _newInvoicePaymentMethod;
+        set
+        {
+            if (SetProperty(ref _newInvoicePaymentMethod, value))
+            {
+                OnPropertyChanged(nameof(IsPaymentBankWire));
+                OnPropertyChanged(nameof(IsPaymentInstaPay));
+                OnPropertyChanged(nameof(IsPaymentBoth));
+            }
+        }
+    }
+
+    public bool IsPaymentBankWire
+    {
+        get => NewInvoicePaymentMethod == PaymentMethod.BankWire;
+        set { if (value) NewInvoicePaymentMethod = PaymentMethod.BankWire; }
+    }
+
+    public bool IsPaymentInstaPay
+    {
+        get => NewInvoicePaymentMethod == PaymentMethod.InstaPay;
+        set { if (value) NewInvoicePaymentMethod = PaymentMethod.InstaPay; }
+    }
+
+    public bool IsPaymentBoth
+    {
+        get => NewInvoicePaymentMethod == PaymentMethod.Both;
+        set { if (value) NewInvoicePaymentMethod = PaymentMethod.Both; }
+    }
+
     // Commands
     public IAsyncRelayCommand RefreshCommand { get; }
     public IAsyncRelayCommand MarkAsPaidCommand { get; }
     public IAsyncRelayCommand ExportPdfCommand { get; }
+    public IRelayCommand ExportCsvCommand { get; }
+    public IAsyncRelayCommand<Invoice> ShareWhatsAppCommand { get; }
     public IRelayCommand OpenCreateInvoiceCommand { get; }
     public IRelayCommand CloseCreateInvoiceCommand { get; }
     public IRelayCommand AddLineItemCommand { get; }
@@ -110,6 +146,8 @@ public class InvoicesViewModel : ViewModelBase
         RefreshCommand = new AsyncRelayCommand(LoadInvoicesAsync);
         MarkAsPaidCommand = new AsyncRelayCommand(MarkAsPaidAsync);
         ExportPdfCommand = new AsyncRelayCommand(ExportPdfAsync);
+        ExportCsvCommand = new RelayCommand(ExportInvoicesCsv);
+        ShareWhatsAppCommand = new AsyncRelayCommand<Invoice>(ShareWhatsAppAsync);
 
         CloseCreateInvoiceCommand = new RelayCommand(() => IsCreateInvoiceOpen = false);
 
@@ -304,7 +342,8 @@ public class InvoicesViewModel : ViewModelBase
         NewInvoiceDueDate = DateTime.UtcNow.Date.AddDays(14);
         NewInvoiceCurrency = "EGP";
         NewInvoiceExchangeRate = 1.0m;
-        NewInvoiceNotes = "Payment terms: Net 14. Bank wire details on invoice.";
+        NewInvoiceNotes = "Payment terms: Net 14. Bank wire & InstaPay details on invoice.";
+        NewInvoicePaymentMethod = PaymentMethod.BankWire;
 
         NewInvoiceItems.Clear();
         NewItemDescription = "Consulting & Software Development Services";
@@ -317,6 +356,10 @@ public class InvoicesViewModel : ViewModelBase
         OnPropertyChanged(nameof(NewInvoiceCurrency));
         OnPropertyChanged(nameof(NewInvoiceExchangeRate));
         OnPropertyChanged(nameof(NewInvoiceNotes));
+        OnPropertyChanged(nameof(NewInvoicePaymentMethod));
+        OnPropertyChanged(nameof(IsPaymentBankWire));
+        OnPropertyChanged(nameof(IsPaymentInstaPay));
+        OnPropertyChanged(nameof(IsPaymentBoth));
         OnPropertyChanged(nameof(NewItemDescription));
         OnPropertyChanged(nameof(NewItemQty));
         OnPropertyChanged(nameof(NewItemUnitPrice));
@@ -347,7 +390,8 @@ public class InvoicesViewModel : ViewModelBase
                 Currency = NewInvoiceCurrency,
                 ExchangeRateToBase = NewInvoiceExchangeRate > 0 ? NewInvoiceExchangeRate : 1.0m,
                 Status = InvoiceStatus.Sent,
-                Notes = NewInvoiceNotes?.Trim()
+                Notes = NewInvoiceNotes?.Trim(),
+                PaymentMethod = NewInvoicePaymentMethod
             };
 
             foreach (var item in NewInvoiceItems)
@@ -374,6 +418,70 @@ public class InvoicesViewModel : ViewModelBase
         catch (Exception ex)
         {
             ErrorMessage = $"Error saving invoice: {ex.Message}";
+        }
+    }
+
+    private void ExportInvoicesCsv()
+    {
+        try
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Invoices to CSV",
+                Filter = "CSV Spreadsheet (*.csv)|*.csv",
+                FileName = $"DevERP_Invoices_{DateTime.UtcNow:yyyyMMdd}.csv"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("Invoice Number,Client,Issue Date,Due Date,Status,SubTotal,Tax Rate,Tax Amount,Total Amount,Currency,Payment Method,Paid At");
+
+                foreach (var inv in FilteredInvoices)
+                {
+                    sb.AppendLine($"\"{inv.InvoiceNumber}\",\"{inv.Client?.Name}\",{inv.IssueDate:yyyy-MM-dd},{inv.DueDate:yyyy-MM-dd},{inv.Status},{inv.SubTotal},{inv.TaxRate},{inv.TaxAmount},{inv.TotalAmount},{inv.Currency},{inv.PaymentMethod},{(inv.PaidAt.HasValue ? inv.PaidAt.Value.ToString("yyyy-MM-dd") : "")}");
+                }
+
+                System.IO.File.WriteAllText(dialog.FileName, sb.ToString(), System.Text.Encoding.UTF8);
+                Notify($"Invoices exported successfully to:\n{dialog.FileName}", "CSV Exported", Wpf.Ui.Controls.InfoBarSeverity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Notify($"CSV export failed: {ex.Message}", "Export Failed", Wpf.Ui.Controls.InfoBarSeverity.Error);
+        }
+    }
+
+    private async Task ShareWhatsAppAsync(Invoice? invoice)
+    {
+        invoice ??= SelectedInvoice;
+        if (invoice == null) return;
+
+        try
+        {
+            var profile = await _dbContext.DeveloperProfiles.FirstOrDefaultAsync() ?? new DeveloperProfile();
+
+            var paymentInstructions = invoice.PaymentMethod switch
+            {
+                PaymentMethod.InstaPay => $"InstaPay (IPN): {profile.InstaPayAddress} (Mobile: {profile.InstaPayPhone})",
+                PaymentMethod.Both => $"InstaPay: {profile.InstaPayAddress} | Bank Wire IBAN: {profile.Iban}",
+                _ => $"Bank Wire IBAN: {profile.Iban} (Bank: {profile.BankName})"
+            };
+
+            var msg = $"Hello {invoice.Client?.Name ?? "Client"},\n\nHere is your invoice summary from {profile.FullName}:\n• Invoice: #{invoice.InvoiceNumber}\n• Amount Due: {invoice.TotalAmount:N2} {invoice.Currency}\n• Due Date: {invoice.DueDate:yyyy-MM-dd}\n• Payment Details: {paymentInstructions}\n\nThank you for your business!";
+            
+            var encodedMsg = Uri.EscapeDataString(msg);
+            var clientPhone = invoice.Client?.Phone?.Replace(" ", "").Replace("-", "").Replace("+", "") ?? "";
+            var waUrl = string.IsNullOrWhiteSpace(clientPhone) 
+                ? $"https://wa.me/?text={encodedMsg}" 
+                : $"https://wa.me/{clientPhone}?text={encodedMsg}";
+
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(waUrl) { UseShellExecute = true });
+            Notify($"WhatsApp share launched for Invoice #{invoice.InvoiceNumber}.", "WhatsApp Share", Wpf.Ui.Controls.InfoBarSeverity.Success);
+        }
+        catch (Exception ex)
+        {
+            Notify($"WhatsApp share failed: {ex.Message}", "Error", Wpf.Ui.Controls.InfoBarSeverity.Error);
         }
     }
 }

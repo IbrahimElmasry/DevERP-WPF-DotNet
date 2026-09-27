@@ -29,6 +29,13 @@
                     </StackPanel>
                 </Button>
 
+                <Button Command="{Binding ExportCsvCommand}" Background="#1E293B" BorderBrush="#334155" Foreground="#F8FAFC" Padding="12,6" Margin="0,0,10,0" ToolTip="Export cash flow records to CSV">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowDownload24" Margin="0,0,6,0" Foreground="#10B981"/>
+                        <TextBlock Text="Export CSV" FontSize="12"/>
+                    </StackPanel>
+                </Button>
+
                 <Button Command="{Binding OpenAddTransactionCommand}"
                         Background="#2563EB" BorderBrush="#3B82F6" Foreground="White" Padding="14,6">
                     <StackPanel Orientation="Horizontal">

@@ -152,9 +152,12 @@ public class AppDbContext : DbContext, IAppDbContext
             BankAccountHolder = "Ibrahim Tarek",
             Iban = "EG380001000100000012345678901",
             SwiftBic = "NBEGEGCX001",
+            InstaPayAddress = "ibrahim@instapay",
+            InstaPayPhone = "+20 101 980 4919",
             BaseCurrency = "EGP",
             UsdToEgpRate = 48.50m,
             EurToEgpRate = 52.00m,
+            SarToEgpRate = 12.95m,
             IsPinEnabled = true,
             SecurityPin = "1234"
         });

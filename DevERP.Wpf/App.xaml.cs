@@ -34,6 +34,7 @@ public partial class App : Application
 
         // Services
         services.AddSingleton<IInvoicePdfService, InvoicePdfService>();
+        services.AddSingleton<ICurrencySyncService, CurrencySyncService>();
 
         // ViewModels
         services.AddSingleton<DashboardViewModel>();
