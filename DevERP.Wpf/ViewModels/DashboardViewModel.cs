@@ -11,6 +11,10 @@ public class DashboardViewModel : ViewModelBase
 {
     private readonly IAppDbContext _dbContext;
     public Action<string>? RequestNavigation { get; set; }
+    public Action<Invoice>? RequestInvoiceDetails { get; set; }
+    public Action? RequestNewClient { get; set; }
+    public Action? RequestNewInvoice { get; set; }
+    public Action? RequestNewTransaction { get; set; }
 
     private decimal _thirtyDaysInflow;
     public decimal ThirtyDaysInflow
@@ -65,8 +69,31 @@ public class DashboardViewModel : ViewModelBase
     public ObservableCollection<Invoice> PendingInvoices { get; } = new();
     public ObservableCollection<MonthlyCashFlowBar> MonthlyTrends { get; } = new();
 
+    private bool _hasRecentTransactions;
+    public bool HasRecentTransactions
+    {
+        get => _hasRecentTransactions;
+        set => SetProperty(ref _hasRecentTransactions, value);
+    }
+
+    private bool _hasPendingInvoices;
+    public bool HasPendingInvoices
+    {
+        get => _hasPendingInvoices;
+        set => SetProperty(ref _hasPendingInvoices, value);
+    }
+
+    private bool _hasMonthlyTrendsData;
+    public bool HasMonthlyTrendsData
+    {
+        get => _hasMonthlyTrendsData;
+        set => SetProperty(ref _hasMonthlyTrendsData, value);
+    }
+
     public IAsyncRelayCommand RefreshCommand { get; }
     public IRelayCommand<string> NavigateCommand { get; }
+    public IRelayCommand<Invoice> SelectInvoiceCommand { get; }
+    public IRelayCommand<string> FastActionCommand { get; }
 
     public DashboardViewModel(IAppDbContext dbContext)
     {
@@ -77,6 +104,31 @@ public class DashboardViewModel : ViewModelBase
             if (!string.IsNullOrEmpty(tag))
             {
                 RequestNavigation?.Invoke(tag);
+            }
+        });
+
+        SelectInvoiceCommand = new RelayCommand<Invoice>(inv =>
+        {
+            if (inv != null)
+            {
+                RequestNavigation?.Invoke("Invoices");
+                RequestInvoiceDetails?.Invoke(inv);
+            }
+        });
+
+        FastActionCommand = new RelayCommand<string>(action =>
+        {
+            switch (action)
+            {
+                case "NewClient":
+                    RequestNewClient?.Invoke();
+                    break;
+                case "NewInvoice":
+                    RequestNewInvoice?.Invoke();
+                    break;
+                case "NewTransaction":
+                    RequestNewTransaction?.Invoke();
+                    break;
             }
         });
     }
@@ -189,6 +241,10 @@ public class DashboardViewModel : ViewModelBase
                 m.OutflowHeight = Math.Max(4, (double)(m.Outflow / maxFlow) * maxHeight);
                 MonthlyTrends.Add(m);
             }
+
+            HasRecentTransactions = RecentTransactions.Count > 0;
+            HasPendingInvoices = PendingInvoices.Count > 0;
+            HasMonthlyTrendsData = historyTxs.Any(t => t.AmountInBaseCurrency > 0);
         }
         catch (Exception ex)
         {

@@ -14,10 +14,10 @@ public class InvoiceStatusToBrushConverter : IValueConverter
         {
             return status switch
             {
-                InvoiceStatus.Paid => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981")),
-                InvoiceStatus.Sent => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3B82F6")),
-                InvoiceStatus.Draft => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8")),
-                InvoiceStatus.Overdue => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EF4444")),
+                InvoiceStatus.Paid => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34D399")),     // Vibrant Emerald
+                InvoiceStatus.Sent => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#38BDF8")),     // Crisp Cyan / Sky
+                InvoiceStatus.Draft => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8")),    // Crisp Slate
+                InvoiceStatus.Overdue => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FB7185")),  // Rose Red
                 _ => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#64748B"))
             };
         }
@@ -35,11 +35,11 @@ public class InvoiceStatusToBackgroundConverter : IValueConverter
         {
             return status switch
             {
-                InvoiceStatus.Paid => new SolidColorBrush(Color.FromArgb(90, 6, 78, 59)),
-                InvoiceStatus.Sent => new SolidColorBrush(Color.FromArgb(90, 30, 58, 138)),
-                InvoiceStatus.Draft => new SolidColorBrush(Color.FromArgb(70, 51, 65, 85)),
-                InvoiceStatus.Overdue => new SolidColorBrush(Color.FromArgb(90, 127, 29, 29)),
-                _ => new SolidColorBrush(Color.FromArgb(50, 100, 116, 139))
+                InvoiceStatus.Paid => new SolidColorBrush(Color.FromArgb(50, 6, 95, 70)),      // Emerald tint
+                InvoiceStatus.Sent => new SolidColorBrush(Color.FromArgb(50, 14, 116, 144)),    // Sky tint
+                InvoiceStatus.Draft => new SolidColorBrush(Color.FromArgb(40, 51, 65, 85)),    // Slate tint
+                InvoiceStatus.Overdue => new SolidColorBrush(Color.FromArgb(50, 159, 18, 57)),  // Rose tint
+                _ => new SolidColorBrush(Color.FromArgb(30, 100, 116, 139))
             };
         }
         return new SolidColorBrush(Colors.Transparent);
@@ -57,10 +57,10 @@ public class InvoiceStatusToBorderBrushConverter : IValueConverter
             return status switch
             {
                 InvoiceStatus.Paid => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#059669")),
-                InvoiceStatus.Sent => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2563EB")),
-                InvoiceStatus.Draft => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#475569")),
-                InvoiceStatus.Overdue => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC2626")),
-                _ => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#475569"))
+                InvoiceStatus.Sent => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0284C7")),
+                InvoiceStatus.Draft => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#334155")),
+                InvoiceStatus.Overdue => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E11D48")),
+                _ => new SolidColorBrush((Color)ColorConverter.ConvertFromString("#334155"))
             };
         }
         return new SolidColorBrush(Colors.Transparent);
@@ -176,3 +176,51 @@ public class NullToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
+
+public class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool b)
+        {
+            return b ? Visibility.Collapsed : Visibility.Visible;
+        }
+        return Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class EqualityToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return Visibility.Collapsed;
+        return string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase)
+            ? Visibility.Visible : Visibility.Collapsed;
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class EqualityToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return new SolidColorBrush(Colors.Transparent);
+        bool matches = string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        return matches ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#152238")) : new SolidColorBrush(Colors.Transparent);
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class EqualityToBorderBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return new SolidColorBrush(Colors.Transparent);
+        bool matches = string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        return matches ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#223554")) : new SolidColorBrush(Colors.Transparent);
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+

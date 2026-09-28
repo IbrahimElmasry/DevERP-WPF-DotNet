@@ -22,6 +22,10 @@
             <converters:TransactionTypeToPrefixConverter x:Key="TransactionTypeToPrefixConverter" />
             <converters:ProjectStatusToBrushConverter x:Key="ProjectStatusToBrushConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            <converters:EqualityToVisibilityConverter x:Key="EqualityToVisibilityConverter" />
+            <converters:EqualityToBrushConverter x:Key="EqualityToBrushConverter" />
+            <converters:EqualityToBorderBrushConverter x:Key="EqualityToBorderBrushConverter" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
             <!-- MVVM View Mappings -->

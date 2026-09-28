@@ -52,11 +52,17 @@ public class InvoicePdfService : IInvoicePdfService
             // Left: Developer identity & optional custom logo
             row.RelativeItem(7).Column(col =>
             {
-                if (!string.IsNullOrWhiteSpace(profile.LogoPath) && File.Exists(profile.LogoPath))
+                var logoPath = (!string.IsNullOrWhiteSpace(profile.LogoPath) && File.Exists(profile.LogoPath))
+                    ? profile.LogoPath
+                    : (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "brand_logo.png"))
+                        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "brand_logo.png")
+                        : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "brand_logo.png"));
+
+                if (File.Exists(logoPath))
                 {
                     try
                     {
-                        col.Item().PaddingBottom(6).MaxHeight(48).MaxWidth(140).Image(profile.LogoPath);
+                        col.Item().PaddingBottom(8).MaxHeight(56).MaxWidth(140).Image(logoPath);
                     }
                     catch { }
                 }

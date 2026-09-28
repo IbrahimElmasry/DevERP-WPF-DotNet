@@ -44,8 +44,43 @@ public class InvoicesViewModel : ViewModelBase
             if (SetProperty(ref _statusFilter, value))
             {
                 ApplyFilter();
+                OnPropertyChanged(nameof(IsFilterAll));
+                OnPropertyChanged(nameof(IsFilterSent));
+                OnPropertyChanged(nameof(IsFilterPaid));
+                OnPropertyChanged(nameof(IsFilterOverdue));
+                OnPropertyChanged(nameof(IsFilterDraft));
             }
         }
+    }
+
+    public bool IsFilterAll
+    {
+        get => StatusFilter == "All";
+        set { if (value) StatusFilter = "All"; }
+    }
+
+    public bool IsFilterSent
+    {
+        get => StatusFilter == "Sent";
+        set { if (value) StatusFilter = "Sent"; }
+    }
+
+    public bool IsFilterPaid
+    {
+        get => StatusFilter == "Paid";
+        set { if (value) StatusFilter = "Paid"; }
+    }
+
+    public bool IsFilterOverdue
+    {
+        get => StatusFilter == "Overdue";
+        set { if (value) StatusFilter = "Overdue"; }
+    }
+
+    public bool IsFilterDraft
+    {
+        get => StatusFilter == "Draft";
+        set { if (value) StatusFilter = "Draft"; }
     }
 
     private Invoice? _selectedInvoice;

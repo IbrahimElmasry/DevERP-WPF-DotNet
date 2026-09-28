@@ -18,29 +18,56 @@
         KeyDown="Window_KeyDown">
 
     <Window.Resources>
-        <!-- Luxury Dialer Keypad Button Style -->
-        <Style x:Key="PinKeypadButtonStyle" TargetType="ui:Button">
-            <Setter Property="Width" Value="66"/>
-            <Setter Property="Height" Value="66"/>
-            <Setter Property="CornerRadius" Value="33"/>
-            <Setter Property="Background" Value="#152136"/>
-            <Setter Property="BorderBrush" Value="#253550"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Foreground" Value="#F8FAFC"/>
-            <Setter Property="FontSize" Value="22"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+        <!-- Luxury Circular Dialer Keypad Button Style -->
+        <Style x:Key="PinKeypadButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="68"/>
+            <Setter Property="Height" Value="68"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="34" Background="#141E30" BorderBrush="#253550" BorderThickness="1.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.FontSize="22" TextElement.FontWeight="SemiBold" TextElement.Foreground="#F8FAFC"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1E2E4A"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#294066"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#0EA5E9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="PinAuxButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource PinKeypadButtonStyle}">
-            <Setter Property="Background" Value="#101A2C"/>
-            <Setter Property="BorderBrush" Value="#1F2D44"/>
-            <Setter Property="Foreground" Value="#94A3B8"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+        <Style x:Key="PinAuxButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="68"/>
+            <Setter Property="Height" Value="68"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="34" Background="#0F1726" BorderBrush="#1C2B42" BorderThickness="1.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.FontSize="16" TextElement.FontWeight="Bold" TextElement.Foreground="#94A3B8"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#17243B"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#64748B"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1F304E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -76,17 +103,29 @@
 
                     <!-- Header: Brand & Identity -->
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16">
-                        <!-- Custom IT Neon Monogram Avatar -->
-                        <Border Width="88" Height="88" CornerRadius="44" BorderBrush="#10B981" BorderThickness="2" Margin="0,0,0,14" HorizontalAlignment="Center" ClipToBounds="True" Background="#060A12">
-                            <Image Source="pack://application:,,,/DevERP.Wpf;component/Assets/it_emblem_circle.png" Stretch="UniformToFill"/>
-                        </Border>
+                        <!-- Custom IT Neon Monogram Avatar with ambient glow -->
+                        <Grid Margin="0,0,0,12" HorizontalAlignment="Center">
+                            <!-- Ambient Glow Circle -->
+                            <Border Width="96" Height="96" CornerRadius="48">
+                                <Border.Background>
+                                    <RadialGradientBrush>
+                                        <GradientStop Color="#4510B981" Offset="0"/>
+                                        <GradientStop Color="#00000000" Offset="1"/>
+                                    </RadialGradientBrush>
+                                </Border.Background>
+                            </Border>
+
+                            <Border Width="88" Height="88" CornerRadius="18" BorderBrush="#10B981" BorderThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#090E1A" Padding="6">
+                                <Image Source="pack://application:,,,/DevERP.Wpf;component/Assets/brand_logo.png" Stretch="Uniform"/>
+                            </Border>
+                        </Grid>
 
                         <!-- User Name -->
-                        <TextBlock x:Name="TxtDeveloperName" Text="Eng. Ibrahim Tarek" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtDeveloperName" Text="Eng. Ibrahim Tarek" FontSize="18" FontWeight="Bold" Foreground="#F8FAFC" HorizontalAlignment="Center"/>
                         
                         <!-- Role / Subtitle -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
-                            <Border Background="#064E3B" CornerRadius="3" Padding="4,1" Margin="0,0,6,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+                            <Border Background="#064E3B" CornerRadius="3" Padding="5,1" Margin="0,0,6,0">
                                 <TextBlock Text="PROTECTED" FontSize="9" FontWeight="Bold" Foreground="#34D399"/>
                             </Border>
                             <TextBlock Text="Enter 4-digit PIN to access DevERP" FontSize="12" Foreground="#94A3B8"/>
@@ -125,26 +164,26 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Row 1: 1, 2, 3 -->
-                        <ui:Button Grid.Row="0" Grid.Column="0" Content="1" Tag="1" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="0" Grid.Column="2" Content="2" Tag="2" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="0" Grid.Column="4" Content="3" Tag="3" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="0" Grid.Column="0" Content="1" Tag="1" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="0" Grid.Column="2" Content="2" Tag="2" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="0" Grid.Column="4" Content="3" Tag="3" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
 
                         <!-- Row 2: 4, 5, 6 -->
-                        <ui:Button Grid.Row="2" Grid.Column="0" Content="4" Tag="4" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="2" Grid.Column="2" Content="5" Tag="5" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="2" Grid.Column="4" Content="6" Tag="6" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="2" Grid.Column="0" Content="4" Tag="4" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="2" Grid.Column="2" Content="5" Tag="5" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="2" Grid.Column="4" Content="6" Tag="6" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
 
                         <!-- Row 3: 7, 8, 9 -->
-                        <ui:Button Grid.Row="4" Grid.Column="0" Content="7" Tag="7" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="4" Grid.Column="2" Content="8" Tag="8" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="4" Grid.Column="4" Content="9" Tag="9" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="4" Grid.Column="0" Content="7" Tag="7" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="4" Grid.Column="2" Content="8" Tag="8" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="4" Grid.Column="4" Content="9" Tag="9" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
 
                         <!-- Row 4: Clear, 0, Backspace -->
-                        <ui:Button Grid.Row="6" Grid.Column="0" Content="C" Click="ClearButton_Click" Style="{StaticResource PinAuxButtonStyle}"/>
-                        <ui:Button Grid.Row="6" Grid.Column="2" Content="0" Tag="0" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
-                        <ui:Button Grid.Row="6" Grid.Column="4" Click="BackspaceButton_Click" Style="{StaticResource PinAuxButtonStyle}">
+                        <Button Grid.Row="6" Grid.Column="0" Content="C" Click="ClearButton_Click" Style="{StaticResource PinAuxButtonStyle}"/>
+                        <Button Grid.Row="6" Grid.Column="2" Content="0" Tag="0" Click="KeypadButton_Click" Style="{StaticResource PinKeypadButtonStyle}"/>
+                        <Button Grid.Row="6" Grid.Column="4" Click="BackspaceButton_Click" Style="{StaticResource PinAuxButtonStyle}">
                             <ui:SymbolIcon Symbol="Backspace24" FontSize="19"/>
-                        </ui:Button>
+                        </Button>
                     </Grid>
 
                     <!-- Architect Branding Badge (Created by Eng. Ibrahim Tarek) -->

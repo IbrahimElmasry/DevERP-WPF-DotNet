@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -19,6 +20,33 @@ public class MainViewModel : ViewModelBase
     public SettingsViewModel SettingsVM { get; }
 
     public IRelayCommand LockAppCommand { get; }
+
+    // Command Palette Quick Switcher
+    private bool _isCommandPaletteOpen;
+    public bool IsCommandPaletteOpen
+    {
+        get => _isCommandPaletteOpen;
+        set => SetProperty(ref _isCommandPaletteOpen, value);
+    }
+
+    private string _commandPaletteSearchText = string.Empty;
+    public string CommandPaletteSearchText
+    {
+        get => _commandPaletteSearchText;
+        set
+        {
+            if (SetProperty(ref _commandPaletteSearchText, value))
+            {
+                _ = FilterCommandPaletteAsync(value);
+            }
+        }
+    }
+
+    public ObservableCollection<CommandPaletteItem> CommandPaletteResults { get; } = new();
+
+    public IRelayCommand OpenCommandPaletteCommand { get; }
+    public IRelayCommand CloseCommandPaletteCommand { get; }
+    public IRelayCommand<CommandPaletteItem> ExecutePaletteItemCommand { get; }
 
     private ViewModelBase _currentViewModel;
     public ViewModelBase CurrentViewModel
@@ -102,6 +130,26 @@ public class MainViewModel : ViewModelBase
 
         // Wire navigation callbacks between ViewModels
         DashboardVM.RequestNavigation = NavigateTo;
+        DashboardVM.RequestInvoiceDetails = inv =>
+        {
+            NavigateTo("Invoices");
+            InvoicesVM.SelectedInvoice = inv;
+        };
+        DashboardVM.RequestNewClient = () =>
+        {
+            NavigateTo("Clients");
+            ClientsVM.OpenAddClientCommand.Execute(null);
+        };
+        DashboardVM.RequestNewInvoice = () =>
+        {
+            NavigateTo("Invoices");
+            InvoicesVM.OpenCreateInvoiceCommand.Execute(null);
+        };
+        DashboardVM.RequestNewTransaction = () =>
+        {
+            NavigateTo("CashFlow");
+            CashFlowVM.OpenAddTransactionCommand.Execute(null);
+        };
         ClientsVM.RequestNavigation = NavigateTo;
         ClientsVM.ShowNotification = (msg, title, sev) => TriggerNotification(msg, title, sev);
         InvoicesVM.ShowNotification = (msg, title, sev) => TriggerNotification(msg, title, sev);
@@ -123,6 +171,27 @@ public class MainViewModel : ViewModelBase
         });
 
         LockAppCommand = new RelayCommand(LockApp);
+
+        OpenCommandPaletteCommand = new RelayCommand(() =>
+        {
+            IsCommandPaletteOpen = true;
+            CommandPaletteSearchText = string.Empty;
+            _ = FilterCommandPaletteAsync(string.Empty);
+        });
+
+        CloseCommandPaletteCommand = new RelayCommand(() =>
+        {
+            IsCommandPaletteOpen = false;
+        });
+
+        ExecutePaletteItemCommand = new RelayCommand<CommandPaletteItem>(item =>
+        {
+            if (item != null)
+            {
+                IsCommandPaletteOpen = false;
+                item.Execute?.Invoke();
+            }
+        });
     }
 
     private void LockApp()
@@ -230,4 +299,151 @@ public class MainViewModel : ViewModelBase
         };
         _notificationTimer.Start();
     }
+
+    private async Task FilterCommandPaletteAsync(string query)
+    {
+        CommandPaletteResults.Clear();
+        var q = query?.Trim().ToLowerInvariant() ?? string.Empty;
+
+        // 1. Navigation items
+        var navItems = new List<CommandPaletteItem>
+        {
+            new() { Title = "Dashboard & Overview", Subtitle = "View high-level metrics, cash flow trajectory & KPIs", Category = "Navigation", Icon = "Home24", IconColor = "#38BDF8", Execute = () => NavigateTo("dashboard") },
+            new() { Title = "Clients & Projects", Subtitle = "Manage client roster, contracts, and active deliverables", Category = "Navigation", Icon = "PeopleTeam24", IconColor = "#A78BFA", Execute = () => NavigateTo("clients") },
+            new() { Title = "Invoices & Billing", Subtitle = "Create invoices, track payments, send WhatsApp links", Category = "Navigation", Icon = "DocumentBulletList24", IconColor = "#34D399", Execute = () => NavigateTo("invoices") },
+            new() { Title = "Cash Flow Ledger", Subtitle = "Track income deposits and business disbursements", Category = "Navigation", Icon = "Money24", IconColor = "#F59E0B", Execute = () => NavigateTo("cashflow") },
+            new() { Title = "Profile & Settings", Subtitle = "Configure company details, bank coordinates, and security PIN", Category = "Navigation", Icon = "Settings24", IconColor = "#94A3B8", Execute = () => NavigateTo("settings") },
+        };
+
+        // 2. Fast Actions
+        var actionItems = new List<CommandPaletteItem>
+        {
+            new() { Title = "Create New Invoice", Subtitle = "Draft a new billable client invoice", Category = "Action", Icon = "Add24", IconColor = "#34D399", Execute = () => { NavigateTo("invoices"); InvoicesVM.OpenCreateInvoiceCommand.Execute(null); } },
+            new() { Title = "Add New Client", Subtitle = "Register a new client or company account", Category = "Action", Icon = "PersonAdd24", IconColor = "#A78BFA", Execute = () => { NavigateTo("clients"); ClientsVM.OpenAddClientCommand.Execute(null); } },
+            new() { Title = "Record Expense / Revenue", Subtitle = "Add a transaction entry to the cash flow ledger", Category = "Action", Icon = "ReceiptMoney24", IconColor = "#F59E0B", Execute = () => { NavigateTo("cashflow"); CashFlowVM.OpenAddTransactionCommand.Execute(null); } },
+            new() { Title = "Lock DevERP Workspace", Subtitle = "Trigger immediate security PIN protection", Category = "Security", Icon = "LockClosed24", IconColor = "#FB7185", Execute = LockApp },
+        };
+
+        if (string.IsNullOrWhiteSpace(q))
+        {
+            foreach (var a in actionItems) CommandPaletteResults.Add(a);
+            foreach (var n in navItems) CommandPaletteResults.Add(n);
+            return;
+        }
+
+        // Filter Actions & Nav
+        foreach (var a in actionItems.Where(x => x.Title.ToLowerInvariant().Contains(q) || x.Subtitle.ToLowerInvariant().Contains(q)))
+        {
+            CommandPaletteResults.Add(a);
+        }
+        foreach (var n in navItems.Where(x => x.Title.ToLowerInvariant().Contains(q) || x.Subtitle.ToLowerInvariant().Contains(q)))
+        {
+            CommandPaletteResults.Add(n);
+        }
+
+        // Filter Invoices from DB
+        try
+        {
+            var invoices = await _dbContext.Invoices
+                .Include(i => i.Client)
+                .Where(i => i.InvoiceNumber.ToLower().Contains(q) ||
+                            (i.Client != null && i.Client.Name.ToLower().Contains(q)))
+                .Take(5)
+                .ToListAsync();
+
+            foreach (var inv in invoices)
+            {
+                CommandPaletteResults.Add(new CommandPaletteItem
+                {
+                    Title = $"{inv.InvoiceNumber} • {inv.TotalAmount:N2} {inv.Currency}",
+                    Subtitle = $"Client: {inv.Client?.Name} | Status: {inv.Status} | Due: {inv.DueDate:yyyy-MM-dd}",
+                    Category = "Invoice",
+                    Icon = "DocumentBulletList24",
+                    IconColor = "#38BDF8",
+                    Execute = () =>
+                    {
+                        NavigateTo("invoices");
+                        InvoicesVM.SelectedInvoice = inv;
+                    }
+                });
+            }
+        }
+        catch { }
+
+        // Filter Clients from DB
+        try
+        {
+            var clients = await _dbContext.Clients
+                .Where(c => c.Name.ToLower().Contains(q) ||
+                            (c.Company != null && c.Company.ToLower().Contains(q)) ||
+                            (c.Email != null && c.Email.ToLower().Contains(q)))
+                .Take(5)
+                .ToListAsync();
+
+            foreach (var client in clients)
+            {
+                CommandPaletteResults.Add(new CommandPaletteItem
+                {
+                    Title = client.Name,
+                    Subtitle = $"{client.Company} • {client.Email}",
+                    Category = "Client",
+                    Icon = "Person24",
+                    IconColor = "#A78BFA",
+                    Execute = () =>
+                    {
+                        NavigateTo("clients");
+                        ClientsVM.SelectedClient = client;
+                    }
+                });
+            }
+        }
+        catch { }
+
+        // Filter Cash Flow Transactions
+        try
+        {
+            var txs = await _dbContext.CashFlowTransactions
+                .Where(t => t.Description.ToLower().Contains(q) || t.Category.ToLower().Contains(q))
+                .Take(5)
+                .ToListAsync();
+
+            foreach (var tx in txs)
+            {
+                CommandPaletteResults.Add(new CommandPaletteItem
+                {
+                    Title = $"{tx.Description} ({tx.Amount:N2} {tx.Currency})",
+                    Subtitle = $"{tx.Type} • {tx.Category} • {tx.Date:yyyy-MM-dd}",
+                    Category = "Ledger",
+                    Icon = "Money24",
+                    IconColor = tx.Type == Core.Enums.TransactionType.Inflow ? "#34D399" : "#FB7185",
+                    Execute = () => NavigateTo("cashflow")
+                });
+            }
+        }
+        catch { }
+
+        if (CommandPaletteResults.Count == 0)
+        {
+            CommandPaletteResults.Add(new CommandPaletteItem
+            {
+                Title = "No matching results found",
+                Subtitle = string.IsNullOrWhiteSpace(q) ? "Type to search actions, invoices, clients, or ledger entries" : $"No records matched \"{q}\"",
+                Category = "Search",
+                Icon = "Info24",
+                IconColor = "#64748B",
+                Execute = null
+            });
+        }
+    }
 }
+
+public class CommandPaletteItem
+{
+    public string Title { get; set; } = string.Empty;
+    public string Subtitle { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public string Icon { get; set; } = "Search24";
+    public string IconColor { get; set; } = "#38BDF8";
+    public Action? Execute { get; set; }
+}
+

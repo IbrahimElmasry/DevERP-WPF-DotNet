@@ -21,25 +21,19 @@ public static class DatabaseInitializer
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN AutoLockMinutes INTEGER NOT NULL DEFAULT 0;"); } catch { }
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE Invoices ADD COLUMN PaymentMethod INTEGER NOT NULL DEFAULT 0;"); } catch { }
 
-        // Default Logo Auto-linking if not set
+        // Default Logo Auto-linking
         try
         {
+            var appDataLogo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "brand_logo.png");
             var profile = await context.DeveloperProfiles.FirstOrDefaultAsync();
-            if (profile != null && (string.IsNullOrWhiteSpace(profile.LogoPath) || !File.Exists(profile.LogoPath)))
+            if (profile != null)
             {
-                var candidatePaths = new[]
+                if (string.IsNullOrWhiteSpace(profile.LogoPath) || !File.Exists(profile.LogoPath) || profile.LogoPath.EndsWith("brand_logo.png") || profile.LogoPath.Contains("invoice_logo"))
                 {
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "brand_logo.png"),
-                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "brand_logo.png")
-                };
-
-                foreach (var candidate in candidatePaths)
-                {
-                    if (File.Exists(candidate))
+                    if (File.Exists(appDataLogo))
                     {
-                        profile.LogoPath = candidate;
+                        profile.LogoPath = appDataLogo;
                         await context.SaveChangesAsync();
-                        break;
                     }
                 }
             }
