@@ -248,10 +248,44 @@ public class InvoicePdfService : IInvoicePdfService
                 }
             });
 
-            // Summary Totals
+            // Summary Totals & Authorized Stamp Block
             col.Item().PaddingTop(10).Row(row =>
             {
-                row.RelativeItem(7); // Spacer
+                // Left side: Official Verification & Stamp (if enabled)
+                row.RelativeItem(7).Column(stampCol =>
+                {
+                    if (profile.IncludeStampOnInvoices)
+                    {
+                        var stampPath = (!string.IsNullOrWhiteSpace(profile.StampPath) && File.Exists(profile.StampPath))
+                            ? profile.StampPath
+                            : (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "official_stamp.png"))
+                                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "official_stamp.png")
+                                : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "official_stamp.png"));
+
+                        if (File.Exists(stampPath))
+                        {
+                            try
+                            {
+                                stampCol.Item().PaddingLeft(4).Column(s =>
+                                {
+                                    s.Item().Text("OFFICIAL VALIDATION & STAMP")
+                                        .FontSize(8)
+                                        .Bold()
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    s.Item().PaddingTop(2).MaxHeight(58).MaxWidth(160).Image(stampPath);
+
+                                    s.Item().PaddingTop(2).Text("Verified & Authorized by Lead Engineer")
+                                        .FontSize(7.5f)
+                                        .Italic()
+                                        .FontColor(Colors.Grey.Darken2);
+                                });
+                            }
+                            catch { }
+                        }
+                    }
+                });
+
                 row.RelativeItem(5).Column(totals =>
                 {
                     totals.Item().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).PaddingVertical(3).Row(r =>

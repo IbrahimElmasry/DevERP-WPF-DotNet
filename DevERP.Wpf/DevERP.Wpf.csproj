@@ -24,8 +24,12 @@
   <ItemGroup>
     <Resource Include="Assets\app.ico" />
     <Resource Include="Assets\brand_logo.png" />
+    <Resource Include="Assets\official_stamp.png" />
     <Resource Include="Assets\it_emblem_circle.png" />
     <None Update="Assets\brand_logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\official_stamp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\it_emblem_circle.png">

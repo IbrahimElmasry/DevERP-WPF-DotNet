@@ -43,6 +43,8 @@ public class SettingsViewModel : ViewModelBase
     public IAsyncRelayCommand SyncLiveFxRatesCommand { get; }
     public IRelayCommand UploadLogoCommand { get; }
     public IRelayCommand RemoveLogoCommand { get; }
+    public IRelayCommand UploadStampCommand { get; }
+    public IRelayCommand RemoveStampCommand { get; }
 
     public SettingsViewModel(IAppDbContext dbContext, ICurrencySyncService currencyService)
     {
@@ -57,6 +59,8 @@ public class SettingsViewModel : ViewModelBase
         SyncLiveFxRatesCommand = new AsyncRelayCommand(SyncLiveFxRatesAsync);
         UploadLogoCommand = new RelayCommand(UploadLogo);
         RemoveLogoCommand = new RelayCommand(RemoveLogo);
+        UploadStampCommand = new RelayCommand(UploadStamp);
+        RemoveStampCommand = new RelayCommand(RemoveStamp);
 
         OpenUrlCommand = new RelayCommand<string>(url =>
         {
@@ -240,6 +244,42 @@ public class SettingsViewModel : ViewModelBase
         Profile.LogoPath = null;
         OnPropertyChanged(nameof(Profile));
         Notify("Logo removed from invoices.", "Logo Removed", Wpf.Ui.Controls.InfoBarSeverity.Informational);
+    }
+
+    private void UploadStamp()
+    {
+        try
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Official Stamp or Seal (.PNG)",
+                Filter = "PNG Image (*.png)|*.png|All Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var dir = Path.GetDirectoryName(AppDbContext.GetDatabasePath()) ?? "";
+                var ext = Path.GetExtension(dialog.FileName);
+                var dest = Path.Combine(dir, $"official_stamp{ext}");
+                File.Copy(dialog.FileName, dest, overwrite: true);
+
+                Profile.StampPath = dest;
+                Profile.IncludeStampOnInvoices = true;
+                OnPropertyChanged(nameof(Profile));
+                Notify("Official stamp uploaded successfully! Click 'Save Changes' to apply.", "Stamp Uploaded", Wpf.Ui.Controls.InfoBarSeverity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Notify($"Error uploading stamp: {ex.Message}", "Upload Failed", Wpf.Ui.Controls.InfoBarSeverity.Error);
+        }
+    }
+
+    private void RemoveStamp()
+    {
+        Profile.StampPath = null;
+        OnPropertyChanged(nameof(Profile));
+        Notify("Official stamp removed from invoices.", "Stamp Removed", Wpf.Ui.Controls.InfoBarSeverity.Informational);
     }
 
     private async Task RestoreDatabaseBackupAsync()

@@ -18,23 +18,42 @@ public static class DatabaseInitializer
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN InstaPayPhone TEXT NOT NULL DEFAULT '+20 101 980 4919';"); } catch { }
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN SarToEgpRate NUMERIC NOT NULL DEFAULT 12.95;"); } catch { }
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN LogoPath TEXT NULL;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN StampPath TEXT NULL;"); } catch { }
+        try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN IncludeStampOnInvoices INTEGER NOT NULL DEFAULT 1;"); } catch { }
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE DeveloperProfiles ADD COLUMN AutoLockMinutes INTEGER NOT NULL DEFAULT 0;"); } catch { }
         try { await context.Database.ExecuteSqlRawAsync("ALTER TABLE Invoices ADD COLUMN PaymentMethod INTEGER NOT NULL DEFAULT 0;"); } catch { }
 
-        // Default Logo Auto-linking
+        // Default Logo & Stamp Auto-linking
         try
         {
             var appDataLogo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "brand_logo.png");
+            var appDataStamp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevERP", "official_stamp.png");
             var profile = await context.DeveloperProfiles.FirstOrDefaultAsync();
             if (profile != null)
             {
+                bool modified = false;
                 if (string.IsNullOrWhiteSpace(profile.LogoPath) || !File.Exists(profile.LogoPath) || profile.LogoPath.EndsWith("brand_logo.png") || profile.LogoPath.Contains("invoice_logo"))
                 {
                     if (File.Exists(appDataLogo))
                     {
                         profile.LogoPath = appDataLogo;
-                        await context.SaveChangesAsync();
+                        modified = true;
                     }
+                }
+
+                if (string.IsNullOrWhiteSpace(profile.StampPath) || !File.Exists(profile.StampPath) || profile.StampPath.EndsWith("official_stamp.png"))
+                {
+                    if (File.Exists(appDataStamp))
+                    {
+                        profile.StampPath = appDataStamp;
+                        profile.IncludeStampOnInvoices = true;
+                        modified = true;
+                    }
+                }
+
+                if (modified)
+                {
+                    await context.SaveChangesAsync();
                 }
             }
         }

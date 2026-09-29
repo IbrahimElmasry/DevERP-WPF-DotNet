@@ -132,6 +132,47 @@
                             </Button>
                         </StackPanel>
                     </Grid>
+
+                    <!-- Official Stamp & Verification Seal Upload -->
+                    <Border Height="1" Background="#1E293B" Margin="0,14,0,14"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Live Stamp Preview Thumbnail (on paper-white background) -->
+                        <Border Grid.Column="0" Width="92" Height="46" CornerRadius="8" Background="#F8FAFC" BorderBrush="#253550" BorderThickness="1.2" Margin="0,0,12,0" Padding="3">
+                            <Image Source="{Binding Profile.StampPath, TargetNullValue='pack://application:,,,/DevERP.Wpf;component/Assets/official_stamp.png', FallbackValue='pack://application:,,,/DevERP.Wpf;component/Assets/official_stamp.png'}" Stretch="Uniform"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Official Engineering Stamp &amp; Seal (.PNG)" FontSize="11" Foreground="#94A3B8"/>
+                                <CheckBox IsChecked="{Binding Profile.IncludeStampOnInvoices}" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Stamp Invoices" FontSize="10.5" Foreground="#34D399" FontWeight="SemiBold"/>
+                                </CheckBox>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Profile.StampPath, TargetNullValue='Official Eng. Ibrahim Tarek Stamp (Assets/official_stamp.png)'}"
+                                       FontSize="11" Foreground="#38BDF8" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Command="{Binding UploadStampCommand}"
+                                    Background="#1E293B" BorderBrush="#38BDF8" Foreground="#F8FAFC" Padding="12,6" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Image24" FontSize="14" Margin="0,0,6,0" Foreground="#38BDF8"/>
+                                    <TextBlock Text="Change Stamp" FontSize="11" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding RemoveStampCommand}"
+                                    Background="Transparent" BorderBrush="#EF4444" Foreground="#EF4444" Padding="10,6">
+                                <TextBlock Text="Reset" FontSize="11"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Border>
 

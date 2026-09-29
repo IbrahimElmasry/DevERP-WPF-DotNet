@@ -29,6 +29,10 @@ public class DeveloperProfile
     // Custom Logo for Invoices
     public string? LogoPath { get; set; }
 
+    // Official Stamp / Seal for Invoices
+    public string? StampPath { get; set; }
+    public bool IncludeStampOnInvoices { get; set; } = true;
+
     // Security & Authentication (4-Digit PIN)
     public bool IsPinEnabled { get; set; } = true;
     public string SecurityPin { get; set; } = "1234";
