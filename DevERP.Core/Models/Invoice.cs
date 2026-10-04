@@ -4,7 +4,7 @@ namespace DevERP.Core.Models;
 
 public class Invoice
 {
-    public int Id { get; set; }
+    public int Id { get; set; } 
     public string InvoiceNumber { get; set; } = string.Empty;
     public DateTime IssueDate { get; set; } = DateTime.UtcNow.Date;
     public DateTime DueDate { get; set; } = DateTime.UtcNow.Date.AddDays(14);
